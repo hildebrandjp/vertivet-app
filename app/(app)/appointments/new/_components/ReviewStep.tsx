@@ -1,23 +1,17 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect } from "react";
+
 import { ROUTES } from "@/app/shared/config/routes";
 import { useActionForm } from "@/app/shared/hooks/useActionForm";
-import { Alert } from "@/app/shared/ui/Alert";
-import { Avatar } from "@/app/shared/ui/Avatar";
 import { Button, ButtonLink } from "@/app/shared/ui/Button";
 import { Card } from "@/app/shared/ui/Card";
 import { Field } from "@/app/shared/ui/Field";
-import { ChevronLeftIcon } from "@/app/shared/ui/icons";
 import { StatusPanel } from "@/app/shared/ui/StatusPanel";
 import { TextArea } from "@/app/shared/ui/TextArea";
-import type { Pet, ServiceOffering } from "../../../_lib/data/types";
-import {
-  formatDay,
-  formatDuration,
-  formatPrice,
-  formatSlotTime,
-} from "../../../_lib/format";
+import { CLINIC_CONTACT } from "../../../_lib/content";
+import type { Pet, ServiceOffering, TimeSlot } from "../../../_lib/data/types";
+import { formatDay, formatSlotTime } from "../../../_lib/format";
 import {
   BOOKING_FIELDS,
   BOOKING_INITIAL_STATE,
@@ -26,56 +20,32 @@ import {
   validateBooking,
 } from "../_lib/booking";
 import { bookAppointment } from "../actions";
-import styles from "./booking.module.css";
-import { WizardFooter } from "./WizardFooter";
+import { BookingCareCard, BookingReviewActions } from "./BookingReviewAside";
+import { BookingSubmissionError } from "./BookingSubmissionError";
+import { BookingSummary } from "./BookingSummary";
+import styles from "./review.module.css";
 
 interface ReviewStepProps {
   pet: Pet;
   service: ServiceOffering;
   draft: BookingDraft;
-  /** Jump back to a step to change something. */
+  slot?: TimeSlot;
   onEdit: (stepIndex: number) => void;
   onNotesChange: (notes: string) => void;
   onBookAnother: () => void;
+  onSubmitted: (submitted: boolean) => void;
 }
 
-function SummaryRow({
-  label,
-  children,
-  onEdit,
-}: {
-  label: string;
-  children: ReactNode;
-  onEdit?: () => void;
-}) {
-  return (
-    <div className={styles.summaryRow}>
-      <dt className={styles.summaryLabel}>{label}</dt>
-      <dd className={styles.summaryValue}>{children}</dd>
-      {onEdit ? (
-        <dd className={styles.summaryAction}>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={onEdit}
-            aria-label={`Change ${label.toLowerCase()}`}
-          >
-            Change
-          </Button>
-        </dd>
-      ) : null}
-    </div>
-  );
-}
-
-/** Step 3: summary, then a Server Action confirms the booking. */
+/** Owns submission state; presentation components receive data and actions. */
 export function ReviewStep({
   pet,
   service,
   draft,
+  slot,
   onEdit,
   onNotesChange,
   onBookAnother,
+  onSubmitted,
 }: ReviewStepProps) {
   const form = useActionForm({
     action: bookAppointment,
@@ -83,6 +53,9 @@ export function ReviewStep({
     fields: BOOKING_FIELDS,
     validate: validateBooking,
   });
+  useEffect(() => {
+    onSubmitted(form.succeeded);
+  }, [form.succeeded, onSubmitted]);
   const when =
     draft.date && draft.time
       ? `${formatDay(draft.date)} at ${formatSlotTime(draft.time)}`
@@ -117,84 +90,67 @@ export function ReviewStep({
     (firstFieldError
       ? { title: "Some details are missing", message: firstFieldError }
       : null);
+  const dismissProblem = () => {
+    form.dismissFormError();
+    for (const field of BOOKING_FIELDS) form.clearFieldError(field);
+  };
 
   return (
     <form
       action={form.formAction}
       onSubmit={form.onSubmit}
-      className={styles.reviewForm}
+      className={styles.form}
+      aria-busy={form.pending}
     >
-      <Card padding="lg">
-        <dl className={styles.summary}>
-          <SummaryRow label="Pet" onEdit={() => onEdit(0)}>
-            <span className={styles.petOption}>
-              <Avatar name={pet.name} src={pet.photoUrl} decorative />
-              <span className={styles.optionText}>
-                <span className={styles.optionTitle}>{pet.name}</span>
-                <span className={styles.optionMeta}>{pet.breed}</span>
-              </span>
-            </span>
-          </SummaryRow>
-          <SummaryRow label="Service" onEdit={() => onEdit(0)}>
-            {service.name} · {formatDuration(service.durationMinutes)}
-          </SummaryRow>
-          <SummaryRow label="Date & time" onEdit={() => onEdit(1)}>
-            {when}
-          </SummaryRow>
-          <SummaryRow label="Estimated total">
-            <span className={styles.price}>
-              {formatPrice(service.priceCents)}
-            </span>
-          </SummaryRow>
-        </dl>
-      </Card>
-
-      <Field
-        label="Notes for the clinic (optional)"
-        hint={`Symptoms, behaviour or anything the team should know. Up to ${NOTES_MAX_LENGTH} characters.`}
-      >
-        <TextArea
-          name="notes"
-          rows={3}
-          maxLength={NOTES_MAX_LENGTH}
-          placeholder="e.g. He has been scratching his left ear since Monday."
-          value={draft.notes}
-          onChange={(event) => onNotesChange(event.target.value)}
-        />
-      </Field>
-
+      {problem ? (
+        <BookingSubmissionError problem={problem} onDismiss={dismissProblem} />
+      ) : null}
+      <fieldset disabled={form.pending} className={styles.layout}>
+        <legend className="sr-only">Review your booking</legend>
+        <BookingSummary
+          pet={pet}
+          service={service}
+          draft={draft}
+          slot={slot}
+          onEdit={onEdit}
+          disabled={form.pending}
+        >
+          <Field
+            label="Notes for the clinic (optional)"
+            hint={`Symptoms, behaviour or anything the team should know. Up to ${NOTES_MAX_LENGTH} characters.`}
+          >
+            <TextArea
+              name="notes"
+              rows={3}
+              maxLength={NOTES_MAX_LENGTH}
+              placeholder="Anything you would like the team to know?"
+              value={draft.notes}
+              onChange={(event) => {
+                onNotesChange(event.target.value);
+                form.clearFieldError("notes");
+              }}
+            />
+          </Field>
+        </BookingSummary>
+        <aside
+          className={styles.aside}
+          aria-label="Booking actions and guidance"
+        >
+          <BookingReviewActions
+            pending={form.pending}
+            onBack={() => onEdit(1)}
+          />
+          <BookingCareCard />
+        </aside>
+      </fieldset>
       <input type="hidden" name="petId" value={pet.id} />
       <input type="hidden" name="serviceId" value={service.id} />
       <input type="hidden" name="date" value={draft.date ?? ""} />
       <input type="hidden" name="time" value={draft.time ?? ""} />
-
-      {problem ? (
-        <Alert
-          tone="danger"
-          title={problem.title}
-          onDismiss={form.dismissFormError}
-        >
-          {problem.message}
-        </Alert>
-      ) : null}
-
-      <WizardFooter
-        start={
-          <Button
-            variant="secondary"
-            startIcon={<ChevronLeftIcon />}
-            disabled={form.pending}
-            onClick={() => onEdit(1)}
-          >
-            Back
-          </Button>
-        }
-        end={
-          <Button type="submit" size="lg" loading={form.pending}>
-            Confirm Booking
-          </Button>
-        }
-      />
+      <footer className={styles.support}>
+        Need assistance with your booking? Contact our team at{" "}
+        <a href={`tel:${CLINIC_CONTACT.phoneHref}`}>{CLINIC_CONTACT.phone}</a>
+      </footer>
     </form>
   );
 }

@@ -31,6 +31,11 @@ interface BookingWizardProps {
   services: ServiceOffering[];
 }
 
+const REVIEW_PROGRESS = [
+  ...BOOKING_STEPS,
+  { id: "confirmation", label: "Confirmation" },
+];
+
 /**
  * Three-step booking flow. The step lives in the URL (?step=schedule) via
  * shallow history updates: Back/Forward work, and no server round trip is
@@ -40,6 +45,7 @@ export function BookingWizard({ pets, services }: BookingWizardProps) {
   const searchParams = useSearchParams();
   const [draft, setDraft] = useState<BookingDraft>(EMPTY_DRAFT);
   const [blocker, setBlocker] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
   // Slots per "service|date", kept while the wizard is open.
   const slotCache = useRef(new Map<string, TimeSlot[]>());
 
@@ -60,6 +66,7 @@ export function BookingWizard({ pets, services }: BookingWizardProps) {
 
   const goTo = useCallback((index: number) => {
     setBlocker(null);
+    setSubmitted(false);
     const url = new URL(window.location.href);
     if (index === 0) url.searchParams.delete("step");
     else url.searchParams.set("step", BOOKING_STEPS[index].id);
@@ -81,20 +88,25 @@ export function BookingWizard({ pets, services }: BookingWizardProps) {
   const service = services.find((s) => s.id === draft.serviceId) ?? null;
 
   return (
-    <div className={styles.wizard}>
+    <div className={styles.wizard} data-step={stepId}>
       <Stepper
-        steps={BOOKING_STEPS}
-        current={step}
-        onStepSelect={goTo}
-        completedDisplay="number"
+        steps={stepId === "review" ? REVIEW_PROGRESS : BOOKING_STEPS}
+        current={submitted ? 3 : step}
+        onStepSelect={submitted ? undefined : goTo}
+        layout={stepId === "review" ? "stacked" : "inline"}
+        completedDisplay="check"
         aria-label="Booking progress"
       />
 
       <header className={styles.intro}>
         <h1 ref={headingRef} tabIndex={-1} className={styles.title}>
-          {copy.title}
+          {submitted ? "Appointment Requested" : copy.title}
         </h1>
-        <p className={styles.description}>{copy.description}</p>
+        <p className={styles.description}>
+          {submitted
+            ? "Your booking has been sent to the clinic for confirmation."
+            : copy.description}
+        </p>
       </header>
 
       {stepId === "details" ? (
@@ -121,7 +133,15 @@ export function BookingWizard({ pets, services }: BookingWizardProps) {
           pet={pet}
           service={service}
           draft={draft}
+          slot={
+            draft.date
+              ? slotCache.current
+                  .get(`${service.id}|${draft.date}`)
+                  ?.find((slot) => slot.time === draft.time)
+              : undefined
+          }
           onEdit={goTo}
+          onSubmitted={setSubmitted}
           onNotesChange={(notes) => update({ notes })}
           onBookAnother={() => {
             setDraft(EMPTY_DRAFT);

@@ -28,8 +28,9 @@ export const STEP_COPY: Record<
       "Choose a preferred appointment date from the calendar and pick an available time slot.",
   },
   review: {
-    title: "Review & Confirm",
-    description: "Check the details below before confirming your booking.",
+    title: "Review Your Booking",
+    description:
+      "Please verify all details before confirming your appointment.",
   },
 };
 

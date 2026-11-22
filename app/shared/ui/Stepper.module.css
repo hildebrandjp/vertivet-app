@@ -79,6 +79,41 @@ button.content:focus-visible {
   border-color: var(--color-border-strong);
 }
 
+.stepper[data-layout="stacked"] .list {
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 0;
+}
+.stepper[data-layout="stacked"] .step {
+  flex: 1;
+  position: relative;
+  justify-content: center;
+}
+.stepper[data-layout="stacked"] .content {
+  flex-direction: column;
+  gap: 12px;
+  border-radius: var(--radius-sm);
+}
+.stepper[data-layout="stacked"] .label {
+  text-transform: uppercase;
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--letter-spacing-caps);
+}
+.stepper[data-layout="stacked"] .step + .step::before {
+  position: absolute;
+  top: 16px;
+  right: calc(50% + 28px);
+  width: calc(100% - 56px);
+}
+.stepper[data-layout="stacked"] .step[data-state="complete"] .marker {
+  background: var(--color-text-heading);
+  border-color: var(--color-text-heading);
+}
+.stepper[data-layout="stacked"] .step[data-state="current"] .marker {
+  background: var(--color-surface);
+  color: var(--color-text-heading);
+  border: 2px solid var(--color-text-heading);
+}
 /* Phones: only the current label is shown next to the markers. */
 @media (max-width: 560px) {
   .step:not([data-state="current"]) .label {

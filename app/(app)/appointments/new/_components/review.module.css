@@ -1,0 +1,220 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 278px;
+  align-items: start;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  border: 0;
+}
+.summary {
+  gap: 32px;
+  min-width: 0;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+}
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+.cardTitle svg {
+  font-size: 20px;
+}
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sectionHeading h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-caps);
+}
+.sectionHeading svg {
+  font-size: 16px;
+  color: var(--color-text-muted);
+}
+.pet {
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+.petDetails {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+.petDetails h3 {
+  font-size: var(--font-size-lg);
+}
+.petDetails p,
+.muted {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.7;
+}
+.serviceHeading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.serviceHeading h3 {
+  font-size: var(--font-size-md);
+}
+.serviceFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: var(--border-width) solid var(--color-border);
+  padding-top: 12px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.dateGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.dateGrid dt {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-semibold);
+}
+.dateGrid dd {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+.arrival {
+  border-style: dashed;
+  font-size: var(--font-size-xs);
+}
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+.actions {
+  gap: 12px;
+}
+.asideTitle {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-bottom: 8px;
+}
+.policy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 24px;
+  border-top: var(--border-width) solid var(--color-border);
+}
+.policy h3 {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+}
+.policy p {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: 1.7;
+}
+.care {
+  text-align: center;
+}
+.careImage {
+  display: block;
+  width: 100%;
+  height: 150px;
+  object-fit: contain;
+}
+.care p {
+  font-size: var(--font-size-xs);
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+.feedback {
+  padding-block: 32px;
+}
+.feedback > div > div {
+  max-width: 64ch;
+}
+.feedback h2 {
+  font-size: var(--font-size-md);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+.feedback button {
+  align-self: center;
+  min-width: 104px;
+}
+.support {
+  border-top: var(--border-width) solid var(--color-border);
+  padding-top: 24px;
+  margin-top: 16px;
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.support a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+@media (max-width: 1050px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: 20px;
+  }
+}
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .care {
+    display: none;
+  }
+  .form {
+    gap: 24px;
+  }
+}
+@media (max-width: 440px) {
+  .dateGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pet {
+    flex-wrap: wrap;
+  }
+  .summary {
+    padding: 20px;
+  }
+}

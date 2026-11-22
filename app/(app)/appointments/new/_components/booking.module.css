@@ -5,6 +5,23 @@
   gap: var(--space-6);
 }
 
+.wizard[data-step="review"] {
+  max-width: 1000px;
+  width: 100%;
+  margin-inline: auto;
+}
+.wizard[data-step="review"] .intro {
+  order: -1;
+  text-align: center;
+}
+.wizard[data-step="review"] .title {
+  font-size: clamp(28px, 3vw, 36px);
+}
+.wizard[data-step="review"] > nav {
+  width: min(100%, 720px);
+  margin: 8px auto;
+}
+
 .intro {
   display: flex;
   flex-direction: column;

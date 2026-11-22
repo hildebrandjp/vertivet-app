@@ -65,21 +65,28 @@ export async function bookAppointment(
     return messageErrorState(BOOKING_ERRORS.past_date, input);
   }
 
-  const [pets, services] = await Promise.all([
-    fetchPetsForAction(),
-    fetchServicesForAction(),
-  ]);
-  const known =
-    pets.some((pet) => pet.id === data.petId) &&
-    services.some((service) => service.id === data.serviceId);
-  if (!known) return messageErrorState(BOOKING_ERRORS.invalid_selection, input);
+  try {
+    const [pets, services] = await Promise.all([
+      fetchPetsForAction(),
+      fetchServicesForAction(),
+    ]);
+    const known =
+      pets.some((pet) => pet.id === data.petId) &&
+      services.some((service) => service.id === data.serviceId);
+    if (!known)
+      return messageErrorState(BOOKING_ERRORS.invalid_selection, input);
 
-  const created = await createAppointment({
-    ...data,
-    notes: data.notes.trim(),
-  });
-  if (!created.ok)
-    return messageErrorState(BOOKING_ERRORS[created.reason], input);
+    const created = await createAppointment({
+      ...data,
+      notes: data.notes.trim(),
+    });
+    if (!created.ok)
+      return messageErrorState(BOOKING_ERRORS[created.reason], input);
 
-  return successState(input);
+    return successState(input);
+  } catch (error) {
+    unstable_rethrow(error);
+    console.error("[booking] Failed to submit appointment.", error);
+    return messageErrorState(BOOKING_ERRORS.unavailable, input);
+  }
 }
