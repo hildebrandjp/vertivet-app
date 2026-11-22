@@ -28,8 +28,3 @@ export const validateLogin = createValidator<LoginField>({
 export function isRemembered(value: string | undefined): boolean {
   return value === "on";
 }
-
-/** Canonical form of an email before it is sent anywhere. */
-export function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}

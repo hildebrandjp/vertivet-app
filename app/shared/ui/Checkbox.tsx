@@ -9,6 +9,7 @@ import {
 import { cx } from "../utils/cx";
 import { mergeRefs } from "../utils/refs";
 import styles from "./Checkbox.module.css";
+import { useFieldControl } from "./Field";
 import { CheckIcon, MinusIcon } from "./icons";
 
 export interface CheckboxProps
@@ -31,12 +32,20 @@ export function Checkbox({
   description,
   indeterminate = false,
   size = "md",
+  id,
   disabled,
+  required,
   className,
   ref,
+  "aria-describedby": ariaDescribedBy,
   ...rest
 }: CheckboxProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  // Inside a <Field>, pick up id, error state and helper/error text wiring.
+  const control = useFieldControl(
+    { id, disabled, required, "aria-describedby": ariaDescribedBy },
+    "md",
+  );
 
   // `indeterminate` is a DOM property only, it has no HTML attribute.
   useEffect(() => {
@@ -47,14 +56,18 @@ export function Checkbox({
     <label
       className={cx(styles.checkbox, className)}
       data-size={size}
-      data-disabled={disabled || undefined}
+      data-disabled={control.disabled || undefined}
     >
       <span className={styles.control}>
         <input
           {...rest}
           ref={mergeRefs(inputRef, ref)}
+          id={control.id}
           type="checkbox"
-          disabled={disabled}
+          disabled={control.disabled}
+          required={control.required}
+          aria-invalid={control.invalid}
+          aria-describedby={control.describedBy}
           className={styles.input}
         />
         <span className={styles.box} aria-hidden="true">

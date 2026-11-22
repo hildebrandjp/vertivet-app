@@ -32,6 +32,7 @@ export * from "./Menubar";
 export * from "./Pagination";
 export * from "./PasswordInput";
 export * from "./Sidebar";
+export * from "./StatusPanel";
 export * from "./Table";
 export * from "./TextArea";
 export * from "./TextInput";

@@ -82,7 +82,7 @@ change the values. To rebrand, change the palette layer only.
 | 17 | Pagination      | `Pagination` (buttons or links)                 |
 | 18 | Text Area       | `TextArea`                                      |
 | 19 | Collapsible     | `Collapsible`                                   |
-| –  | Feedback        | `Alert` (info / success / warning / danger, dismissible) |
+| –  | Feedback        | `Alert` (banner), `StatusPanel` (success / result state) |
 | –  | Forms (extra)   | `PasswordInput` (show/hide), `TextLink`         |
 | –  | Performance     | `LazySection` (+ `useInView`) for scrollable pages |
 | –  | Brand           | `Logo`, `Heading`, `Text`, `Eyebrow`, `Card*`, `Sidebar`, `DateStrip`, icons |
@@ -92,11 +92,14 @@ change the values. To rebrand, change the palette layer only.
 - `shared/forms/validation.ts`: `rules`, `createValidator`, `isEmail`. Pure, so
   the same validator runs in the browser (instant feedback) and in the
   Server Action (the authority).
-- `shared/forms/form-state.ts`: `FormState`, `readFields`, `readBoolean`.
+- `shared/forms/form-state.ts`: `FormState`, `readFields`, `readBoolean`, and the
+  `fieldErrorState` / `messageErrorState` / `successState` builders for actions.
+- `shared/forms/normalize.ts`: `normalizeEmail`, `normalizeText`.
 - `shared/hooks/useActionForm.ts`: wires a `<form>` to its Server Action:
-  client pre-validation, server errors, clear-on-type and dismissible banner.
+  client pre-validation, server errors, clear-on-type, dismissible banner and
+  `succeeded` / `startOver` for forms that swap to a result view.
 
-See `app/(auth)/_lib/login-form.ts` + `app/(auth)/login/actions.ts` for usage.
+See `app/(auth)/` (login, forgot-password, request-account) for usage.
 
 ## Lazy loading
 

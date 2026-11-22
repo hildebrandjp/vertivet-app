@@ -70,6 +70,10 @@
   border-color: var(--color-primary);
 }
 
+.input[aria-invalid="true"]:not(:checked) + .box {
+  border-color: var(--color-danger);
+}
+
 .input:checked + .box,
 .input:indeterminate + .box {
   background: var(--color-primary);

@@ -14,13 +14,7 @@ export function AuthAltAction({ prompt, href, label }: AuthAltActionProps) {
   return (
     <div className={styles.altAction}>
       <p className={styles.prompt}>{prompt}</p>
-      <ButtonLink
-        href={href}
-        variant="secondary"
-        size="lg"
-        fullWidth
-        prefetch={false}
-      >
+      <ButtonLink href={href} variant="secondary" size="lg" fullWidth>
         {label}
       </ButtonLink>
     </div>

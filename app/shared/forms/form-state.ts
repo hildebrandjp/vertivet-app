@@ -18,8 +18,32 @@ export interface FormState<F extends string> {
   values?: Partial<Record<F, string>>;
 }
 
+type Values<F extends string> = Partial<Record<F, string>>;
+
 export function idleState<F extends string>(): FormState<F> {
   return { status: "idle" };
+}
+
+/** Validation failed: show messages next to the fields. */
+export function fieldErrorState<F extends string>(
+  fieldErrors: FieldErrors<F>,
+  values?: Values<F>,
+): FormState<F> {
+  return { status: "error", fieldErrors, values };
+}
+
+/** Request failed as a whole: show a banner above the form. */
+export function messageErrorState<F extends string>(
+  formError: FormMessage,
+  values?: Values<F>,
+): FormState<F> {
+  return { status: "error", formError, values };
+}
+
+export function successState<F extends string>(
+  values?: Values<F>,
+): FormState<F> {
+  return { status: "success", values };
 }
 
 /** Reads a text field; File entries and missing fields become "". */

@@ -19,6 +19,15 @@ export function isEmail(value: string): boolean {
   return EMAIL_PATTERN.test(value.trim());
 }
 
+// Digits with optional +, spaces, dots, dashes and brackets; 7-15 digits.
+const PHONE_PATTERN = /^\+?[\d\s().-]+$/;
+
+export function isPhone(value: string): boolean {
+  const trimmed = value.trim();
+  const digits = trimmed.replace(/\D/g, "").length;
+  return PHONE_PATTERN.test(trimmed) && digits >= 7 && digits <= 15;
+}
+
 export function isBlank(value: string | null | undefined): boolean {
   return !value || value.trim().length === 0;
 }
@@ -33,6 +42,15 @@ export const rules = {
     (message = "Enter a valid email address."): Rule =>
     (value) =>
       isBlank(value) || isEmail(value) ? null : message,
+  phone:
+    (message = "Enter a valid phone number."): Rule =>
+    (value) =>
+      isBlank(value) || isPhone(value) ? null : message,
+  /** Value must be one of `allowed` (e.g. option values of a select). */
+  oneOf:
+    (allowed: readonly string[], message = "Select a valid option."): Rule =>
+    (value) =>
+      isBlank(value) || allowed.includes(value) ? null : message,
   minLength:
     (length: number, message?: string): Rule =>
     (value) =>

@@ -5,6 +5,21 @@ import type { FormMessage, FormState } from "../forms/form-state";
 import { readFields } from "../forms/form-state";
 import type { FieldErrors, ValidationResult } from "../forms/validation";
 
+/**
+ * Focuses the control for `name`. Custom controls (Combobox, DatePicker)
+ * submit through a hidden input, so focus its visible sibling instead.
+ */
+function focusField(form: HTMLFormElement, name: string) {
+  const element = form.querySelector<HTMLInputElement>(`[name="${name}"]`);
+  const target =
+    element?.type === "hidden"
+      ? element.parentElement?.querySelector<HTMLElement>(
+          'input:not([type="hidden"]), button, textarea',
+        )
+      : element;
+  target?.focus();
+}
+
 interface UseActionFormOptions<F extends string> {
   /** Server Action with the useActionState signature. */
   action: (state: FormState<F>, formData: FormData) => Promise<FormState<F>>;
@@ -20,7 +35,8 @@ interface UseActionFormOptions<F extends string> {
  * - validates on the client first and skips the round trip when invalid,
  * - mirrors server field/form errors into local state,
  * - lets fields clear their own error while the user types,
- * - lets the banner be dismissed until the next submission.
+ * - lets the banner be dismissed until the next submission,
+ * - exposes `succeeded` / `startOver` for forms that swap to a result view.
  */
 export function useActionForm<F extends string>({
   action,
@@ -36,12 +52,15 @@ export function useActionForm<F extends string>({
     state.formError ?? null,
   );
 
+  const [succeeded, setSucceeded] = useState(state.status === "success");
+
   // Sync from a new server result during render (no effect, no extra paint).
   const [syncedState, setSyncedState] = useState(state);
   if (state !== syncedState) {
     setSyncedState(state);
     setFieldErrors(state.fieldErrors ?? {});
     setFormError(state.formError ?? null);
+    setSucceeded(state.status === "success");
   }
 
   const onSubmit = useCallback(
@@ -57,11 +76,7 @@ export function useActionForm<F extends string>({
       setFieldErrors(result.fieldErrors);
       setFormError(null);
       const firstInvalid = fields.find((f) => result.fieldErrors[f]);
-      if (firstInvalid) {
-        event.currentTarget
-          .querySelector<HTMLElement>(`[name="${firstInvalid}"]`)
-          ?.focus();
-      }
+      if (firstInvalid) focusField(event.currentTarget, firstInvalid);
     },
     [fields, validate],
   );
@@ -76,6 +91,8 @@ export function useActionForm<F extends string>({
   }, []);
 
   const dismissFormError = useCallback(() => setFormError(null), []);
+  /** Leave the success view and show the form again. */
+  const startOver = useCallback(() => setSucceeded(false), []);
 
   return {
     state,
@@ -86,5 +103,7 @@ export function useActionForm<F extends string>({
     onSubmit,
     clearFieldError,
     dismissFormError,
+    succeeded,
+    startOver,
   };
 }

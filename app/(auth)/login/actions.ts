@@ -2,14 +2,18 @@
 
 import { redirect } from "next/navigation";
 import { ROUTES } from "@/app/shared/config/routes";
-import { readFields } from "@/app/shared/forms/form-state";
+import {
+  fieldErrorState,
+  messageErrorState,
+  readFields,
+} from "@/app/shared/forms/form-state";
+import { normalizeEmail } from "@/app/shared/forms/normalize";
 import { AUTH_ERROR_MESSAGES } from "../_lib/auth-errors";
 import { authenticate } from "../_lib/auth-service";
 import {
   isRemembered,
   LOGIN_FIELDS,
   type LoginState,
-  normalizeEmail,
   validateLogin,
 } from "../_lib/login-form";
 import { createSession } from "../_lib/session";
@@ -28,7 +32,7 @@ export async function login(
 
   const result = validateLogin(input);
   if (!result.success) {
-    return { status: "error", fieldErrors: result.fieldErrors, values };
+    return fieldErrorState(result.fieldErrors, values);
   }
 
   const auth = await authenticate({
@@ -36,11 +40,7 @@ export async function login(
     password: result.data.password,
   });
   if (!auth.ok) {
-    return {
-      status: "error",
-      formError: AUTH_ERROR_MESSAGES[auth.code],
-      values,
-    };
+    return messageErrorState(AUTH_ERROR_MESSAGES[auth.code], values);
   }
 
   await createSession(auth.token, {
