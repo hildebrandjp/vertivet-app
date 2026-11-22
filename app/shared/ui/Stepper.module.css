@@ -114,6 +114,23 @@ button.content:focus-visible {
   color: var(--color-text-heading);
   border: 2px solid var(--color-text-heading);
 }
+.stepper[data-labels="hidden"] .label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.stepper[data-labels="hidden"] .step[data-state="current"] .marker {
+  color: var(--color-surface);
+  background: var(--color-text-heading);
+}
+.stepper[data-labels="hidden"] .step + .step::before {
+  width: calc(100% - 32px);
+  right: calc(50% + 16px);
+  background: var(--color-text-heading);
+}
 /* Phones: only the current label is shown next to the markers. */
 @media (max-width: 560px) {
   .step:not([data-state="current"]) .label {

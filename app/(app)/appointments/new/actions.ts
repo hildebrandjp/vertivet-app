@@ -83,7 +83,16 @@ export async function bookAppointment(
     if (!created.ok)
       return messageErrorState(BOOKING_ERRORS[created.reason], input);
 
-    return successState(input);
+    return {
+      ...successState(input),
+      receipt: {
+        id: created.id,
+        status: created.status,
+        bookedAt: new Date().toISOString(),
+        timeZone: APP_TIME_ZONE,
+        emailSent: created.emailSent,
+      },
+    };
   } catch (error) {
     unstable_rethrow(error);
     console.error("[booking] Failed to submit appointment.", error);

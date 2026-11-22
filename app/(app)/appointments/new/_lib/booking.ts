@@ -5,6 +5,7 @@
 import { type FormState, idleState } from "@/app/shared/forms/form-state";
 import { createValidator, rules } from "@/app/shared/forms/validation";
 import { addDays } from "@/app/shared/utils/date";
+import type { BookingReceipt } from "./confirmation";
 
 export const BOOKING_STEPS = [
   { id: "details", label: "Pet & Service" },
@@ -113,7 +114,9 @@ export const BOOKING_FIELDS = [
   "notes",
 ] as const;
 export type BookingField = (typeof BOOKING_FIELDS)[number];
-export type BookingState = FormState<BookingField>;
+export type BookingState = FormState<BookingField> & {
+  receipt?: BookingReceipt;
+};
 export const BOOKING_INITIAL_STATE: BookingState = idleState();
 
 export const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;

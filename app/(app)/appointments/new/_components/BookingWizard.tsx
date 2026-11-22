@@ -88,26 +88,33 @@ export function BookingWizard({ pets, services }: BookingWizardProps) {
   const service = services.find((s) => s.id === draft.serviceId) ?? null;
 
   return (
-    <div className={styles.wizard} data-step={stepId}>
+    <div
+      className={styles.wizard}
+      data-step={stepId}
+      data-submitted={submitted || undefined}
+    >
       <Stepper
         steps={stepId === "review" ? REVIEW_PROGRESS : BOOKING_STEPS}
         current={submitted ? 3 : step}
         onStepSelect={submitted ? undefined : goTo}
         layout={stepId === "review" ? "stacked" : "inline"}
         completedDisplay="check"
+        showLabels={!submitted}
         aria-label="Booking progress"
       />
 
-      <header className={styles.intro}>
-        <h1 ref={headingRef} tabIndex={-1} className={styles.title}>
-          {submitted ? "Appointment Requested" : copy.title}
-        </h1>
-        <p className={styles.description}>
-          {submitted
-            ? "Your booking has been sent to the clinic for confirmation."
-            : copy.description}
-        </p>
-      </header>
+      {!submitted ? (
+        <header className={styles.intro}>
+          <h1 ref={headingRef} tabIndex={-1} className={styles.title}>
+            {submitted ? "Appointment Requested" : copy.title}
+          </h1>
+          <p className={styles.description}>
+            {submitted
+              ? "Your booking has been sent to the clinic for confirmation."
+              : copy.description}
+          </p>
+        </header>
+      ) : null}
 
       {stepId === "details" ? (
         <DetailsStep

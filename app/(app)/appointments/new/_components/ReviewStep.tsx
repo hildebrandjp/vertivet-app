@@ -2,24 +2,22 @@
 
 import { useEffect } from "react";
 
-import { ROUTES } from "@/app/shared/config/routes";
 import { useActionForm } from "@/app/shared/hooks/useActionForm";
-import { Button, ButtonLink } from "@/app/shared/ui/Button";
-import { Card } from "@/app/shared/ui/Card";
 import { Field } from "@/app/shared/ui/Field";
-import { StatusPanel } from "@/app/shared/ui/StatusPanel";
 import { TextArea } from "@/app/shared/ui/TextArea";
 import { CLINIC_CONTACT } from "../../../_lib/content";
 import type { Pet, ServiceOffering, TimeSlot } from "../../../_lib/data/types";
-import { formatDay, formatSlotTime } from "../../../_lib/format";
 import {
   BOOKING_FIELDS,
   BOOKING_INITIAL_STATE,
   type BookingDraft,
+  type BookingField,
+  type BookingState,
   NOTES_MAX_LENGTH,
   validateBooking,
 } from "../_lib/booking";
 import { bookAppointment } from "../actions";
+import { BookingConfirmation } from "./BookingConfirmation";
 import { BookingCareCard, BookingReviewActions } from "./BookingReviewAside";
 import { BookingSubmissionError } from "./BookingSubmissionError";
 import { BookingSummary } from "./BookingSummary";
@@ -47,7 +45,7 @@ export function ReviewStep({
   onBookAnother,
   onSubmitted,
 }: ReviewStepProps) {
-  const form = useActionForm({
+  const form = useActionForm<BookingField, BookingState>({
     action: bookAppointment,
     initialState: BOOKING_INITIAL_STATE,
     fields: BOOKING_FIELDS,
@@ -56,31 +54,21 @@ export function ReviewStep({
   useEffect(() => {
     onSubmitted(form.succeeded);
   }, [form.succeeded, onSubmitted]);
-  const when =
-    draft.date && draft.time
-      ? `${formatDay(draft.date)} at ${formatSlotTime(draft.time)}`
-      : "";
-
-  if (form.succeeded) {
+  if (form.succeeded && form.state.receipt) {
     return (
-      <Card padding="lg">
-        <StatusPanel
-          autoFocus
-          title="Appointment requested"
-          actions={
-            <>
-              <ButtonLink href={ROUTES.dashboard}>Go to Dashboard</ButtonLink>
-              <Button variant="ghost" onClick={onBookAnother}>
-                Book another appointment
-              </Button>
-            </>
-          }
-        >
-          <strong>{pet.name}</strong>&apos;s {service.name.toLowerCase()} on{" "}
-          <strong>{when}</strong> is awaiting confirmation. We&apos;ll notify
-          you as soon as the clinic confirms.
-        </StatusPanel>
-      </Card>
+      <BookingConfirmation
+        data={{
+          ...form.state.receipt,
+          pet,
+          service,
+          date: form.state.values?.date ?? draft.date ?? "",
+          time: form.state.values?.time ?? draft.time ?? "",
+          notes: form.state.values?.notes ?? draft.notes,
+          provider: slot?.provider,
+          location: slot?.location,
+        }}
+        onBookAnother={onBookAnother}
+      />
     );
   }
 

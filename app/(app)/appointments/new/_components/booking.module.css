@@ -21,6 +21,10 @@
   width: min(100%, 720px);
   margin: 8px auto;
 }
+.wizard[data-submitted] > nav {
+  width: min(100%, 336px);
+  margin-block: 0 8px;
+}
 
 .intro {
   display: flex;

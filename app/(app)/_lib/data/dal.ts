@@ -132,21 +132,42 @@ export async function fetchAvailableSlots(
 }
 
 export type CreateAppointmentResult =
-  | { ok: true; id: string }
+  | {
+      ok: true;
+      id: string;
+      status: "confirmed" | "pending";
+      emailSent: boolean;
+    }
   | { ok: false; reason: "slot_taken" | "rejected" | "unavailable" };
 
 export async function createAppointment(
   input: NewAppointment,
 ): Promise<CreateAppointmentResult> {
   const session = await resolveSession();
-  if ("demo" in session) return { ok: true, id: `demo_${Date.now()}` };
+  if ("demo" in session)
+    return {
+      ok: true,
+      id: `demo_${Date.now()}`,
+      status: "confirmed",
+      emailSent: false,
+    };
 
-  const result = await apiRequest<{ id?: string }>("/appointments", {
+  const result = await apiRequest<{
+    id?: string;
+    status?: "confirmed" | "pending";
+    emailSent?: boolean;
+  }>("/appointments", {
     method: "POST",
     body: input,
     token: session.token,
   });
-  if (result.ok) return { ok: true, id: result.data?.id ?? "" };
+  if (result.ok)
+    return {
+      ok: true,
+      id: result.data?.id ?? "",
+      status: result.data?.status === "confirmed" ? "confirmed" : "pending",
+      emailSent: result.data?.emailSent === true,
+    };
   if (result.failure === "unauthorized") redirect(ROUTES.login);
   if (result.status === 409) return { ok: false, reason: "slot_taken" };
   return {

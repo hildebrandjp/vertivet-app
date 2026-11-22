@@ -14,6 +14,8 @@ export interface StepperProps {
   /** check = completed steps show a tick; number = keep their number. */
   completedDisplay?: "check" | "number";
   layout?: "inline" | "stacked";
+  /** Hide labels visually while retaining accessible step names. */
+  showLabels?: boolean;
   /** When set, completed steps become buttons that jump back. */
   onStepSelect?: (index: number) => void;
   "aria-label"?: string;
@@ -30,6 +32,7 @@ export function Stepper({
   onStepSelect,
   completedDisplay = "check",
   layout = "inline",
+  showLabels = true,
   "aria-label": ariaLabel = "Progress",
   className,
 }: StepperProps) {
@@ -39,6 +42,7 @@ export function Stepper({
       className={cx(styles.stepper, className)}
       data-completed={completedDisplay}
       data-layout={layout}
+      data-labels={showLabels ? "visible" : "hidden"}
     >
       <ol className={styles.list}>
         {steps.map((step, index) => {

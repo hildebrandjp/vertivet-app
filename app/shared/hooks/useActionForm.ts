@@ -20,10 +20,10 @@ function focusField(form: HTMLFormElement, name: string) {
   target?.focus();
 }
 
-interface UseActionFormOptions<F extends string> {
+interface UseActionFormOptions<F extends string, S extends FormState<F>> {
   /** Server Action with the useActionState signature. */
-  action: (state: FormState<F>, formData: FormData) => Promise<FormState<F>>;
-  initialState: FormState<F>;
+  action: (state: S, formData: FormData) => Promise<S>;
+  initialState: S;
   /** Fields to validate on the client before submitting. */
   fields: readonly F[];
   /** The same validator the Server Action uses. */
@@ -38,13 +38,14 @@ interface UseActionFormOptions<F extends string> {
  * - lets the banner be dismissed until the next submission,
  * - exposes `succeeded` / `startOver` for forms that swap to a result view.
  */
-export function useActionForm<F extends string>({
-  action,
-  initialState,
-  fields,
-  validate,
-}: UseActionFormOptions<F>) {
-  const [state, formAction, pending] = useActionState(action, initialState);
+export function useActionForm<
+  F extends string,
+  S extends FormState<F> = FormState<F>,
+>({ action, initialState, fields, validate }: UseActionFormOptions<F, S>) {
+  const [state, formAction, pending] = useActionState<S, FormData>(
+    action,
+    initialState as Awaited<S>,
+  );
   const [fieldErrors, setFieldErrors] = useState<FieldErrors<F>>(
     state.fieldErrors ?? {},
   );

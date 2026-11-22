@@ -12,7 +12,7 @@ export interface SectionHeaderProps {
   actions?: ReactNode;
   /** 2 = page section (24px), 4 = panel heading (16px). */
   level?: 2 | 3 | 4;
-  as?: "h2" | "h3" | "h4";
+  as?: "h1" | "h2" | "h3" | "h4";
   className?: string;
 }
 

@@ -1,0 +1,323 @@
+.confirmation {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: min(100%, 768px);
+  margin-inline: auto;
+  color: var(--color-text-heading);
+}
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+.successIllustration {
+  display: grid;
+  place-items: center;
+  width: 144px;
+  height: 144px;
+  margin-bottom: 12px;
+  font-size: 64px;
+  background: color-mix(
+    in srgb,
+    var(--color-accent) 10%,
+    var(--color-surface-muted)
+  );
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 4%);
+  animation: receipt-in 420ms var(--ease-standard) both;
+}
+.hero h1 {
+  font-size: clamp(26px, 3vw, 32px);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-heading);
+  letter-spacing: var(--letter-spacing-tight);
+}
+.hero h1:focus {
+  outline: none;
+}
+.hero > p {
+  max-width: 54ch;
+  color: var(--color-text-muted);
+  line-height: 1.65;
+}
+.heroActions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+.receipt {
+  overflow: hidden;
+  gap: 0;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+}
+.receiptHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+.receiptHeader h2 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+.receiptHeader > span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.receiptBody {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 24px;
+}
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px 32px;
+}
+.detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+}
+.detail > div {
+  min-width: 0;
+}
+.detailIcon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-size: 20px;
+}
+.detail dt,
+.notes h3 {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-caps);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-block: 4px 6px;
+}
+.detail dd {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+.detailDescription {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  margin-top: 4px;
+}
+.notes {
+  border-top: var(--border-width) solid var(--color-border);
+  padding-top: 20px;
+}
+.notes p {
+  border: var(--border-width) dashed var(--color-border-strong);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  font-size: var(--font-size-sm);
+  font-style: italic;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.personalNotes {
+  margin-top: 16px;
+}
+.receiptFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  border-top: var(--border-width) solid var(--color-border);
+  padding: 10px 16px;
+  background: var(--color-surface-muted);
+}
+.exportActions {
+  display: flex;
+  gap: 4px;
+}
+.bookedAt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+.exportFeedback {
+  margin-top: -20px;
+  font-size: var(--font-size-xs);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.exportFeedback:empty {
+  display: none;
+}
+.nextActions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.nextAction {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 12px;
+  width: 100%;
+  color: var(--color-text-heading);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-lg);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+.nextAction:hover {
+  background: var(--color-primary-soft);
+  transform: translateY(-2px);
+}
+.nextAction:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 3px;
+}
+.nextIcon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-size: 20px;
+}
+.nextAction strong {
+  font-size: var(--font-size-sm);
+}
+.nextAction > span:last-child {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+.help {
+  padding: 8px 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  line-height: 1.6;
+}
+.help a {
+  color: var(--color-text-heading);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.preVisitFields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.formFeedback {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+@keyframes receipt-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@media (max-width: 600px) {
+  .detailsGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .nextActions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .receiptHeader,
+  .receiptBody {
+    padding: 20px;
+  }
+  .heroActions {
+    width: 100%;
+  }
+  .heroActions > * {
+    flex: 1 1 100%;
+  }
+  .successIllustration {
+    width: 112px;
+    height: 112px;
+    font-size: 52px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .successIllustration {
+    animation: none;
+  }
+  .nextAction {
+    transition: none;
+  }
+  .nextAction:hover {
+    transform: none;
+  }
+}
+@media print {
+  :global(body):has(.confirmation) * {
+    visibility: hidden;
+  }
+  .confirmation,
+  .confirmation * {
+    visibility: visible;
+  }
+  .confirmation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    padding: 24px;
+    color: #111;
+  }
+  .successIllustration,
+  .heroActions,
+  .exportActions,
+  .exportFeedback,
+  .nextActions,
+  .help {
+    display: none;
+  }
+  .receipt {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+  .detailsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
