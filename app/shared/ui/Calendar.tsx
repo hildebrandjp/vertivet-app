@@ -43,6 +43,10 @@ export interface CalendarProps {
   showSelectedLabel?: boolean;
   /** Move focus into the grid on mount (used by DatePicker). */
   autoFocus?: boolean;
+  /** card = own border and padding; plain = sits inside another card. */
+  variant?: "card" | "plain";
+  /** md = compact picker; lg = full-width grid for booking screens. */
+  size?: "md" | "lg";
   className?: string;
 }
 
@@ -62,6 +66,8 @@ export function Calendar({
   locale = DEFAULT_LOCALE,
   showSelectedLabel = true,
   autoFocus = false,
+  variant = "card",
+  size = "md",
   className,
 }: CalendarProps) {
   const [selected, setSelected] = useControllableState<Date | null>({
@@ -137,10 +143,15 @@ export function Calendar({
   const weekdayLong = getWeekdayLabels(locale, weekStartsOn, "long");
 
   return (
-    <div className={cx(styles.calendar, className)}>
+    <div
+      className={cx(styles.calendar, className)}
+      data-variant={variant}
+      data-size={size}
+    >
       <div className={styles.header}>
         <IconButton
           size="sm"
+          variant={size === "lg" ? "secondary" : "ghost"}
           label="Previous month"
           icon={<ChevronLeftIcon />}
           onClick={() => goToMonth(-1)}
@@ -150,6 +161,7 @@ export function Calendar({
         </div>
         <IconButton
           size="sm"
+          variant={size === "lg" ? "secondary" : "ghost"}
           label="Next month"
           icon={<ChevronRightIcon />}
           onClick={() => goToMonth(1)}

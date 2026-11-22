@@ -9,6 +9,7 @@ export const ROUTES = {
   newPet: "/pets/new",
   appointments: "/appointments",
   newAppointment: "/appointments/new",
+  medicalRecords: "/medical-records",
   settings: "/settings",
   showcase: "/showcase",
 } as const;

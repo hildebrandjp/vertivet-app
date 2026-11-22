@@ -46,3 +46,38 @@ export interface AppNotification {
   href?: string;
   read: boolean;
 }
+
+export type ServiceIcon =
+  | "checkup"
+  | "vaccination"
+  | "grooming"
+  | "consultation";
+
+export interface ServiceOffering {
+  id: string;
+  name: string;
+  description: string;
+  durationMinutes: number;
+  /** Price in minor units (cents) to avoid floating-point money. */
+  priceCents: number;
+  icon: ServiceIcon;
+}
+
+export interface TimeSlot {
+  /** Clinic-local 24h time, "HH:MM". */
+  time: string;
+  available: boolean;
+  /** Clinician assigned to the slot, e.g. "Dr. Sarah Jenkins". */
+  provider?: string | null;
+  /** Where the visit happens, e.g. "VertiVet Central (Room 2)". */
+  location?: string | null;
+}
+
+export interface NewAppointment {
+  petId: string;
+  serviceId: string;
+  /** Clinic-local date, "YYYY-MM-DD". */
+  date: string;
+  time: string;
+  notes: string;
+}

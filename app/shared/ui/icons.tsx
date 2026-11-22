@@ -157,3 +157,37 @@ export const MenuIcon = createIcon(
   "MenuIcon",
   <path d="M4 6h16M4 12h16M4 18h16" />,
 );
+export const StethoscopeIcon = createIcon(
+  "StethoscopeIcon",
+  <>
+    <path d="M5 3H4a1 1 0 0 0-1 1v5a5 5 0 0 0 10 0V4a1 1 0 0 0-1-1h-1" />
+    <path d="M8 14v1a5 5 0 0 0 10 0v-2" />
+    <circle cx="18" cy="11" r="2" />
+  </>,
+);
+export const SyringeIcon = createIcon(
+  "SyringeIcon",
+  <path d="m18 2 4 4M17 7l3-3M19 9 8.7 19.3a2.4 2.4 0 0 1-3.4 0l-.6-.6a2.4 2.4 0 0 1 0-3.4L15 5M9 11l4 4M5 19l-3 3M14 4l6 6" />,
+);
+export const ScissorsIcon = createIcon(
+  "ScissorsIcon",
+  <>
+    <circle cx="6" cy="6" r="3" />
+    <circle cx="6" cy="18" r="3" />
+    <path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12" />
+  </>,
+);
+export const FileTextIcon = createIcon(
+  "FileTextIcon",
+  <>
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+    <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+  </>,
+);
+export const ClockIcon = createIcon(
+  "ClockIcon",
+  <>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 6v6l4 2" />
+  </>,
+);

@@ -3,7 +3,11 @@
  * come from shared config so server and client always print the same text.
  */
 import type { Tone } from "@/app/shared/common";
-import { APP_LOCALE, APP_TIME_ZONE } from "@/app/shared/config/locale";
+import {
+  APP_CURRENCY,
+  APP_LOCALE,
+  APP_TIME_ZONE,
+} from "@/app/shared/config/locale";
 import { fromISODate, getAge } from "@/app/shared/utils/date";
 import { pluralize } from "@/app/shared/utils/text";
 import type { AppointmentStatus, Pet, Species } from "./data/types";
@@ -73,3 +77,67 @@ export const APPOINTMENT_STATUS: Record<
   cancelled: { label: "Cancelled", tone: "danger" },
   completed: { label: "Completed", tone: "neutral" },
 };
+
+const currencyFormatter = new Intl.NumberFormat(APP_LOCALE, {
+  style: "currency",
+  currency: APP_CURRENCY,
+});
+
+/** 4500 -> "$45.00" (prices are stored in minor units). */
+export function formatPrice(cents: number): string {
+  return currencyFormatter.format(cents / 100);
+}
+
+/** 30 -> "30 mins", 60 -> "60 mins", 1 -> "1 min". */
+export function formatDuration(minutes: number): string {
+  return `${minutes} ${minutes === 1 ? "min" : "mins"}`;
+}
+
+const slotFormatter = new Intl.DateTimeFormat(APP_LOCALE, {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "UTC",
+});
+
+/** Clinic-local "14:30" -> "02:30 PM" (no time-zone shifting). */
+export function formatSlotTime(time: string): string {
+  const [hours, minutes] = time.split(":").map(Number);
+  return slotFormatter.format(new Date(Date.UTC(2000, 0, 1, hours, minutes)));
+}
+
+const longDayFormatter = new Intl.DateTimeFormat(APP_LOCALE, {
+  weekday: "long",
+  month: "short",
+  day: "2-digit",
+  year: "numeric",
+});
+
+/** "2026-11-24" -> "Tuesday, Nov 24, 2026" (calendar date, no time zone). */
+export function formatDay(isoDate: string): string {
+  const date = fromISODate(isoDate);
+  return date ? longDayFormatter.format(date) : isoDate;
+}
+
+const shortDayFormatter = new Intl.DateTimeFormat(APP_LOCALE, {
+  month: "short",
+  day: "numeric",
+});
+
+/** "2026-10-07" -> "Oct 7". */
+export function formatShortDay(isoDate: string): string {
+  const date = fromISODate(isoDate);
+  return date ? shortDayFormatter.format(date) : isoDate;
+}
+
+const fullDayFormatter = new Intl.DateTimeFormat(APP_LOCALE, {
+  weekday: "long",
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});
+
+/** "2026-10-07" -> "Wednesday, October 7, 2026". */
+export function formatFullDay(isoDate: string): string {
+  const date = fromISODate(isoDate);
+  return date ? fullDayFormatter.format(date) : isoDate;
+}

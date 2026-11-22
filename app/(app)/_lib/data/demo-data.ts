@@ -4,6 +4,8 @@ import type {
   Appointment,
   NavCounts,
   Pet,
+  ServiceOffering,
+  TimeSlot,
   User,
 } from "./types";
 
@@ -90,3 +92,69 @@ export const DEMO_NOTIFICATIONS: AppNotification[] = [
     read: true,
   },
 ];
+
+export const DEMO_SERVICES: ServiceOffering[] = [
+  {
+    id: "svc_checkup",
+    name: "General Checkup",
+    description:
+      "Routine wellness examination including weight check and vital signs.",
+    durationMinutes: 30,
+    priceCents: 4500,
+    icon: "checkup",
+  },
+  {
+    id: "svc_vaccines",
+    name: "Vaccinations",
+    description: "Essential annual booster shots and preventive immunization.",
+    durationMinutes: 20,
+    priceCents: 3000,
+    icon: "vaccination",
+  },
+  {
+    id: "svc_grooming",
+    name: "Professional Grooming",
+    description: "Bath, hair trimming, and nail clipping by our specialists.",
+    durationMinutes: 60,
+    priceCents: 6500,
+    icon: "grooming",
+  },
+  {
+    id: "svc_consult",
+    name: "Consultation",
+    description:
+      "Deep-dive session for specific health concerns or behavioral issues.",
+    durationMinutes: 45,
+    priceCents: 8000,
+    icon: "consultation",
+  },
+];
+
+const DEMO_PROVIDERS = [
+  "Dr. Sarah Jenkins",
+  "Dr. Emma Wilson",
+  "Dr. Marcus Chen",
+];
+
+/**
+ * Deterministic fake availability: 09:00–16:30 every 30 minutes, closed on
+ * Sundays, with some slots taken (stable per date so the UI is predictable).
+ */
+export function demoSlots(serviceId: string, date: string): TimeSlot[] {
+  const [y, m, d] = date.split("-").map(Number);
+  if (new Date(y, m - 1, d).getDay() === 0) return [];
+  const seed = [...`${serviceId}${date}`].reduce(
+    (sum, c) => sum + c.charCodeAt(0),
+    0,
+  );
+  return Array.from({ length: 16 }, (_, i) => {
+    const minutes = 9 * 60 + i * 30;
+    const time = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${minutes % 60 === 0 ? "00" : "30"}`;
+    return {
+      time,
+      available: (seed + i * 7) % 5 !== 0,
+      provider: DEMO_PROVIDERS[(seed + i) % DEMO_PROVIDERS.length],
+      location: `VertiVet Central (Room ${(i % 3) + 1})`,
+    };
+  });
+}

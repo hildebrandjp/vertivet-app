@@ -5,7 +5,12 @@
 import { ROUTES } from "@/app/shared/config/routes";
 import type { BreadcrumbItem } from "@/app/shared/ui/Breadcrumb";
 
-export type NavId = "dashboard" | "pets" | "appointments" | "settings";
+export type NavId =
+  | "dashboard"
+  | "pets"
+  | "appointments"
+  | "medicalRecords"
+  | "settings";
 
 export interface NavEntry {
   id: NavId;
@@ -17,6 +22,11 @@ export const APP_NAV: NavEntry[] = [
   { id: "dashboard", href: ROUTES.dashboard, label: "Dashboard" },
   { id: "pets", href: ROUTES.pets, label: "Pets" },
   { id: "appointments", href: ROUTES.appointments, label: "Appointments" },
+  {
+    id: "medicalRecords",
+    href: ROUTES.medicalRecords,
+    label: "Medical Records",
+  },
   { id: "settings", href: ROUTES.settings, label: "Settings" },
 ];
 
@@ -31,6 +41,10 @@ const BREADCRUMBS: Record<string, BreadcrumbItem[]> = {
   [ROUTES.dashboard]: [
     { label: "Dashboard", href: ROUTES.dashboard },
     { label: "Upcoming Appointments" },
+  ],
+  [ROUTES.newAppointment]: [
+    { label: "Appointments", href: ROUTES.appointments },
+    { label: "Book an Appointment" },
   ],
 };
 

@@ -5,8 +5,8 @@ import styles from "./AuthHero.module.css";
 
 /**
  * Brand panel: illustration, headline and pitch. The image is decorative
- * (empty alt) and lazy: on phones it sits below the form, so it is only
- * fetched when the user scrolls towards it.
+ * (empty alt). It is the LCP element on desktop, so it loads eagerly; on
+ * phones it sits below the form, where an eager SVG costs very little.
  */
 export function AuthHero({ className }: { className?: string }) {
   const { image, title, description } = AUTH_HERO;
@@ -17,7 +17,7 @@ export function AuthHero({ className }: { className?: string }) {
         width={image.width}
         height={image.height}
         alt=""
-        loading="lazy"
+        loading="eager"
         sizes="(min-width: 960px) 360px, 70vw"
         className={styles.image}
       />

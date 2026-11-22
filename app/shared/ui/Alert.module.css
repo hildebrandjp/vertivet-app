@@ -77,6 +77,25 @@
   box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
+/* Callout: guidance rather than feedback. Neutral text, no border. */
+.alert[data-variant="callout"] {
+  padding: 20px var(--space-4);
+  color: var(--color-text-muted);
+  background: color-mix(in srgb, var(--_tone) 9%, var(--color-surface));
+  border-color: transparent;
+  animation: none;
+}
+.alert[data-variant="callout"] .icon {
+  color: var(--_tone);
+}
+.alert[data-variant="callout"] .title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text-heading);
+}
+
 @keyframes alert-in {
   from {
     opacity: 0;

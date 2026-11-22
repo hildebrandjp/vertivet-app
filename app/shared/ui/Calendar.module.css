@@ -92,3 +92,41 @@
   font-size: 11px;
   color: var(--color-text-muted);
 }
+
+/* ----------------------------------------------------------- Variants */
+.calendar[data-variant="plain"] {
+  display: flex;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.calendar[data-size="lg"] {
+  --_day-size: 40px;
+
+  gap: var(--space-4);
+}
+.calendar[data-size="lg"] .title {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+}
+.calendar[data-size="lg"] .grid {
+  width: calc(100% + 8px);
+  border-spacing: 4px 8px;
+  margin: -8px -4px;
+}
+.calendar[data-size="lg"] .weekday {
+  padding-bottom: var(--space-2);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--letter-spacing-caps);
+  text-transform: uppercase;
+}
+.calendar[data-size="lg"] .day {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+.calendar[data-size="lg"] .day[aria-disabled] {
+  text-decoration: none;
+  opacity: 0.55;
+}

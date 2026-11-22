@@ -1,0 +1,91 @@
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Connector line between steps. */
+.step + .step::before {
+  content: "";
+  width: clamp(16px, 4vw, 48px);
+  height: var(--border-width);
+  background: var(--color-border-strong);
+}
+
+.content {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-heading);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-full);
+}
+
+button.content:hover .label {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+button.content:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.marker {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+}
+
+.step[data-state="current"] .marker,
+.step[data-state="complete"] .marker {
+  color: var(--color-primary-contrast);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.step[data-state="current"] .label {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* "number" style: finished steps look settled, only the current one is blue. */
+.stepper[data-completed="number"] .step[data-state="complete"] .marker {
+  color: var(--color-text-heading);
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+}
+
+/* Phones: only the current label is shown next to the markers. */
+@media (max-width: 560px) {
+  .step:not([data-state="current"]) .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+}

@@ -51,6 +51,11 @@ export const rules = {
     (allowed: readonly string[], message = "Select a valid option."): Rule =>
     (value) =>
       isBlank(value) || allowed.includes(value) ? null : message,
+  /** Value must match `pattern` (blank values are left to `required`). */
+  pattern:
+    (pattern: RegExp, message = "Enter a valid value."): Rule =>
+    (value) =>
+      isBlank(value) || pattern.test(value) ? null : message,
   minLength:
     (length: number, message?: string): Rule =>
     (value) =>

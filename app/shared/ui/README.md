@@ -82,10 +82,11 @@ change the values. To rebrand, change the palette layer only.
 | 17 | Pagination      | `Pagination` (buttons or links)                 |
 | 18 | Text Area       | `TextArea`                                      |
 | 19 | Collapsible     | `Collapsible`                                   |
-| –  | Feedback        | `Alert` (banner), `StatusPanel` (success / result state) |
+| –  | Feedback        | `Alert` (`banner` / `callout`), `StatusPanel` (result state) |
 | –  | Forms (extra)   | `PasswordInput` (show/hide), `TextLink`         |
 | –  | Performance     | `LazySection` (+ `useInView`), `Skeleton` (Suspense fallbacks) |
 | –  | Layout / lists  | `SectionHeader`, `ListCard` + `ListCardGroup`, `Avatar` |
+| –  | Selection / flow | `ChoiceCard` + `ChoiceGroup` (radio cards), `Stepper`, `WheelPicker` (vertical scroll picker) |
 | –  | Brand           | `Logo`, `Heading`, `Text`, `Eyebrow`, `Card*`, `Sidebar`, `DateStrip`, icons |
 
 ## Forms: one source of truth

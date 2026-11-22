@@ -116,3 +116,14 @@ export function getAge(
   months = Math.max(0, months);
   return { years: Math.floor(months / 12), months: months % 12 };
 }
+
+/** Today's date (YYYY-MM-DD) in a given IANA time zone, e.g. the clinic's. */
+export function todayInTimeZone(timeZone: string, now = new Date()): string {
+  // en-CA formats dates as YYYY-MM-DD.
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+}

@@ -1,6 +1,7 @@
 import { type ReactNode, Suspense } from "react";
 import {
   CalendarIcon,
+  FileTextIcon,
   HeartIcon,
   HomeIcon,
   SettingsIcon,
@@ -13,6 +14,7 @@ const NAV_ICONS: Record<NavId, ReactNode> = {
   dashboard: <HomeIcon />,
   pets: <HeartIcon />,
   appointments: <CalendarIcon />,
+  medicalRecords: <FileTextIcon />,
   settings: <SettingsIcon />,
 };
 

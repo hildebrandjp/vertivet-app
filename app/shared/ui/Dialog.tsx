@@ -16,11 +16,14 @@ export interface DialogProps {
   /** Action buttons; laid out in equal-width columns. */
   footer?: ReactNode;
   size?: "sm" | "md" | "lg";
+  placement?: "center" | "right";
   closeOnBackdropClick?: boolean;
   /** When false, Escape and backdrop clicks don't close the dialog. */
   dismissible?: boolean;
   /** Show an × in the header. */
   showCloseButton?: boolean;
+  /** Content at the end of the header row, e.g. a status badge. */
+  headerAside?: ReactNode;
   className?: string;
 }
 
@@ -36,9 +39,11 @@ export function Dialog({
   children,
   footer,
   size = "sm",
+  placement = "center",
   closeOnBackdropClick = true,
   dismissible = true,
   showCloseButton = false,
+  headerAside,
   className,
 }: DialogProps) {
   const ref = useModalDialog({
@@ -46,6 +51,7 @@ export function Dialog({
     onOpenChange,
     closeOnBackdropClick,
     dismissible,
+    exitDuration: placement === "right" ? 280 : 0,
   });
   const titleId = useId();
   const descriptionId = useId();
@@ -56,6 +62,7 @@ export function Dialog({
       aria-labelledby={titleId}
       aria-describedby={description ? descriptionId : undefined}
       data-size={size}
+      data-placement={placement}
       className={cx(styles.dialog, className)}
     >
       <div className={styles.inner}>
@@ -63,12 +70,19 @@ export function Dialog({
           <h2 id={titleId} className={styles.title}>
             {title}
           </h2>
+          {headerAside}
           {showCloseButton ? (
             <IconButton
               size="sm"
               label="Close"
               icon={<CloseIcon />}
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                if (placement === "right") {
+                  ref.current?.dispatchEvent(
+                    new Event("cancel", { cancelable: true }),
+                  );
+                } else onOpenChange(false);
+              }}
             />
           ) : null}
         </header>

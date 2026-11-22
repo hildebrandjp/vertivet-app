@@ -21,6 +21,7 @@ export const config = {
     "/dashboard/:path*",
     "/pets/:path*",
     "/appointments/:path*",
+    "/medical-records/:path*",
     "/settings/:path*",
   ],
 };

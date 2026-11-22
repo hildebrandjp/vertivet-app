@@ -21,6 +21,11 @@ const TONE_ICONS: Record<AlertTone, ComponentType<IconProps>> = {
 
 export interface AlertProps {
   tone?: AlertTone;
+  /**
+   * banner = tinted, bordered, uppercase title (form feedback);
+   * callout = soft panel with sentence-case title (inline guidance).
+   */
+  variant?: "banner" | "callout";
   /** Short uppercase heading, e.g. "Invalid login attempt". */
   title?: ReactNode;
   children?: ReactNode;
@@ -33,11 +38,13 @@ export interface AlertProps {
 }
 
 /**
- * Inline feedback banner. danger/warning use role="alert" so screen readers
- * announce them immediately; info/success use the polite role="status".
+ * Inline feedback. Banners are live regions: danger/warning use
+ * role="alert" (announced immediately), info/success role="status".
+ * Callouts are static guidance, so they are not announced.
  */
 export function Alert({
   tone = "info",
+  variant = "banner",
   title,
   children,
   icon,
@@ -47,11 +54,13 @@ export function Alert({
 }: AlertProps) {
   const ToneIcon = TONE_ICONS[tone];
   const urgent = tone === "danger" || tone === "warning";
+  const role = variant === "callout" ? undefined : urgent ? "alert" : "status";
 
   return (
     <div
-      role={urgent ? "alert" : "status"}
+      role={role}
       data-tone={tone}
+      data-variant={variant}
       className={cx(styles.alert, className)}
     >
       {icon === null ? null : (

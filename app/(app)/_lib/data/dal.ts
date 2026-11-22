@@ -11,13 +11,18 @@ import {
   DEMO_NAV_COUNTS,
   DEMO_NOTIFICATIONS,
   DEMO_PETS,
+  DEMO_SERVICES,
   DEMO_USER,
+  demoSlots,
 } from "./demo-data";
 import type {
   AppNotification,
   Appointment,
   NavCounts,
+  NewAppointment,
   Pet,
+  ServiceOffering,
+  TimeSlot,
   User,
 } from "./types";
 
@@ -30,22 +35,29 @@ import type {
 
 type Session = { token: string } | { demo: true };
 
-export const verifySession = cache(async (): Promise<Session> => {
-  if (isDemoMode()) {
-    // Opt into request-time rendering like the real path does.
-    await connection();
-    return { demo: true };
-  }
+/** Session lookup usable anywhere on the server (renders and actions). */
+async function resolveSession(): Promise<Session> {
+  if (isDemoMode()) return { demo: true };
   const token = await getSessionToken();
   if (!token) redirect(ROUTES.login);
   return { token };
+}
+
+/** For rendering: also opts demo mode into request-time rendering. */
+export const verifySession = cache(async (): Promise<Session> => {
+  if (isDemoMode()) await connection();
+  return resolveSession();
 });
 
-async function load<T>(path: string, demoValue: T): Promise<T> {
-  const session = await verifySession();
-  if ("demo" in session) return demoValue;
+async function load<T>(
+  path: string,
+  demoValue: T,
+  session?: Session,
+): Promise<T> {
+  const active = session ?? (await verifySession());
+  if ("demo" in active) return demoValue;
 
-  const result = await apiRequest<T>(path, { token: session.token });
+  const result = await apiRequest<T>(path, { token: active.token });
   if (result.ok && result.data !== null) return result.data;
   if (!result.ok && result.failure === "unauthorized") redirect(ROUTES.login);
   // Surfaces in the nearest error boundary (app/(app)/error.tsx).
@@ -89,3 +101,56 @@ export const getUpcomingVisits = cache(
     }));
   },
 );
+
+export const getServices = cache(() =>
+  load<ServiceOffering[]>("/services", DEMO_SERVICES),
+);
+
+/*
+ * Server Action helpers below: Server Actions are not a render pass, so
+ * they resolve the session directly instead of via verifySession().
+ */
+
+export async function fetchServicesForAction(): Promise<ServiceOffering[]> {
+  return load("/services", DEMO_SERVICES, await resolveSession());
+}
+
+export async function fetchPetsForAction(): Promise<Pet[]> {
+  return load("/pets", DEMO_PETS, await resolveSession());
+}
+
+export async function fetchAvailableSlots(
+  serviceId: string,
+  date: string,
+): Promise<TimeSlot[]> {
+  const query = new URLSearchParams({ serviceId, date });
+  return load(
+    `/availability?${query}`,
+    demoSlots(serviceId, date),
+    await resolveSession(),
+  );
+}
+
+export type CreateAppointmentResult =
+  | { ok: true; id: string }
+  | { ok: false; reason: "slot_taken" | "rejected" | "unavailable" };
+
+export async function createAppointment(
+  input: NewAppointment,
+): Promise<CreateAppointmentResult> {
+  const session = await resolveSession();
+  if ("demo" in session) return { ok: true, id: `demo_${Date.now()}` };
+
+  const result = await apiRequest<{ id?: string }>("/appointments", {
+    method: "POST",
+    body: input,
+    token: session.token,
+  });
+  if (result.ok) return { ok: true, id: result.data?.id ?? "" };
+  if (result.failure === "unauthorized") redirect(ROUTES.login);
+  if (result.status === 409) return { ok: false, reason: "slot_taken" };
+  return {
+    ok: false,
+    reason: result.failure === "rejected" ? "rejected" : "unavailable",
+  };
+}

@@ -14,7 +14,10 @@ import { useFieldControl } from "./Field";
 import { CalendarIcon } from "./icons";
 
 export interface DatePickerProps
-  extends Omit<CalendarProps, "autoFocus" | "className" | "onChange"> {
+  extends Omit<
+    CalendarProps,
+    "autoFocus" | "className" | "onChange" | "size" | "variant"
+  > {
   onChange?: (date: Date) => void;
   placeholder?: string;
   /** Intl options for the trigger text. */
