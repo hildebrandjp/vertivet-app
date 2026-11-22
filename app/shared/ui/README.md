@@ -2,7 +2,7 @@
 
 Reusable components for the VertiVet frontend. Plain CSS Modules + CSS custom
 properties, no CSS framework. A live demo of every component is at
-[`/showcase`](../../showcase/Showcase.tsx).
+[`/showcase`](../../showcase/page.tsx).
 
 ```tsx
 import { Button, Field, TextInput } from "@/app/shared/ui";
@@ -82,7 +82,28 @@ change the values. To rebrand, change the palette layer only.
 | 17 | Pagination      | `Pagination` (buttons or links)                 |
 | 18 | Text Area       | `TextArea`                                      |
 | 19 | Collapsible     | `Collapsible`                                   |
+| –  | Feedback        | `Alert` (info / success / warning / danger, dismissible) |
+| –  | Forms (extra)   | `PasswordInput` (show/hide), `TextLink`         |
+| –  | Performance     | `LazySection` (+ `useInView`) for scrollable pages |
 | –  | Brand           | `Logo`, `Heading`, `Text`, `Eyebrow`, `Card*`, `Sidebar`, `DateStrip`, icons |
+
+## Forms: one source of truth
+
+- `shared/forms/validation.ts`: `rules`, `createValidator`, `isEmail`. Pure, so
+  the same validator runs in the browser (instant feedback) and in the
+  Server Action (the authority).
+- `shared/forms/form-state.ts`: `FormState`, `readFields`, `readBoolean`.
+- `shared/hooks/useActionForm.ts`: wires a `<form>` to its Server Action:
+  client pre-validation, server errors, clear-on-type and dismissible banner.
+
+See `app/(auth)/_lib/login-form.ts` + `app/(auth)/login/actions.ts` for usage.
+
+## Lazy loading
+
+On long pages, code-split below-the-fold groups with `next/dynamic` inside a
+Client Component and wrap them in `LazySection` so they mount (and download)
+only when scrolled near. See `app/showcase/_components/LazyShowcaseSections.tsx`.
+Images use `next/image` (lazy by default; `preload` only for the LCP image).
 
 ## Examples
 
@@ -118,7 +139,7 @@ change the values. To rebrand, change the palette layer only.
 
 ## Adding a component
 
-1. Create `Name.tsx` + `Name.module.css` in this folder.
+1. Create `Name.tsx` + `Name.module.css` in this folder (max 450 lines per file).
 2. Use only `--color-*` and scale tokens, never hex values or `--palette-*`.
 3. Express variants as `data-*` attributes and accept `className`.
 4. Add `"use client"` only if it uses state, effects, context or event handlers.

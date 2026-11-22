@@ -80,3 +80,45 @@ export const ArrowDownIcon = createIcon(
   "ArrowDownIcon",
   <path d="M12 5v14M19 12l-7 7-7-7" />,
 );
+export const EyeIcon = createIcon(
+  "EyeIcon",
+  <>
+    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+    <circle cx="12" cy="12" r="3" />
+  </>,
+);
+export const EyeOffIcon = createIcon(
+  "EyeOffIcon",
+  <>
+    <path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-2.2 3.2M6.6 6.6C3.7 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6" />
+    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2M2 2l20 20" />
+  </>,
+);
+export const XCircleIcon = createIcon(
+  "XCircleIcon",
+  <>
+    <circle cx="12" cy="12" r="10" />
+    <path d="m15 9-6 6M9 9l6 6" />
+  </>,
+);
+export const CheckCircleIcon = createIcon(
+  "CheckCircleIcon",
+  <>
+    <circle cx="12" cy="12" r="10" />
+    <path d="m8 12 3 3 5-6" />
+  </>,
+);
+export const InfoIcon = createIcon(
+  "InfoIcon",
+  <>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 16v-4M12 8h.01" />
+  </>,
+);
+export const AlertTriangleIcon = createIcon(
+  "AlertTriangleIcon",
+  <>
+    <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+    <path d="M12 9v4M12 17h.01" />
+  </>,
+);

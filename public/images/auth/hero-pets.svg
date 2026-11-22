@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 460" fill="none">
+  <!-- Placeholder illustration in brand colours. Replace with the final photo. -->
+  <circle cx="240" cy="250" r="190" fill="#EAF2FD"/>
+  <path d="M70 330c20-90 90-150 180-150s150 60 170 150v130H70Z" fill="#1E6FD9" opacity=".14"/>
+  <circle cx="380" cy="110" r="44" fill="#FFCA3A"/>
+  <path d="M98 150c-14-30 18-58 44-40 26-18 58 10 44 40-10 22-44 42-44 42s-34-20-44-42Z" fill="#FFCA3A" opacity=".85"/>
+  <g fill="#0B3A6B">
+    <ellipse cx="240" cy="300" rx="62" ry="54"/>
+    <ellipse cx="172" cy="226" rx="24" ry="32" transform="rotate(-18 172 226)"/>
+    <ellipse cx="218" cy="190" rx="24" ry="33" transform="rotate(-6 218 190)"/>
+    <ellipse cx="266" cy="190" rx="24" ry="33" transform="rotate(6 266 190)"/>
+    <ellipse cx="310" cy="226" rx="24" ry="32" transform="rotate(18 310 226)"/>
+  </g>
+  <g fill="#1E6FD9" opacity=".5">
+    <circle cx="88" cy="300" r="10"/><circle cx="104" cy="280" r="7"/><circle cx="74" cy="282" r="7"/>
+    <circle cx="410" cy="330" r="10"/><circle cx="426" cy="310" r="7"/><circle cx="396" cy="312" r="7"/>
+  </g>
+</svg>

@@ -5,11 +5,30 @@
   min-width: 0;
 }
 
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.labelAction {
+  flex: none;
+  font-size: var(--font-size-xs);
+}
+
 .label {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-snug);
   color: var(--color-text-heading);
+}
+
+.label[data-variant="caps"] {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-caps);
+  text-transform: uppercase;
 }
 
 .field[data-disabled] .label {

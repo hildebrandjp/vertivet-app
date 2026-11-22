@@ -1,0 +1,10 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Extra breathing room before the secondary path, as in the design. */
+.panel > :last-child {
+  margin-top: var(--space-6);
+}

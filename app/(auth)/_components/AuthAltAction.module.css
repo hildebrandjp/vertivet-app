@@ -1,0 +1,15 @@
+.altAction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.prompt {
+  color: var(--color-text-muted);
+}
+
+.prompt strong {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+}

@@ -1,0 +1,28 @@
+.link {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  text-underline-offset: 3px;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.link:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+.link[data-tone="muted"] {
+  color: var(--color-text-muted);
+}
+.link[data-tone="muted"]:hover {
+  color: var(--color-primary);
+}
+
+.link[data-size="xs"] {
+  font-size: var(--font-size-xs);
+}
+.link[data-size="sm"] {
+  font-size: var(--font-size-sm);
+}
+.link[data-size="md"] {
+  font-size: var(--font-size-md);
+}

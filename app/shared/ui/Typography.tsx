@@ -3,6 +3,8 @@ import { cx } from "../utils/cx";
 import styles from "./Typography.module.css";
 
 type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+/** Non-heading tags for display copy that should not enter the outline. */
+type HeadingAs = HeadingTag | "p" | "span" | "div";
 
 export interface HeadingProps extends HTMLAttributes<HTMLHeadingElement> {
   /**
@@ -12,7 +14,7 @@ export interface HeadingProps extends HTMLAttributes<HTMLHeadingElement> {
    */
   level?: 1 | 2 | 3 | 4;
   /** Rendered tag, when semantics differ from the visual level. */
-  as?: HeadingTag;
+  as?: HeadingAs;
 }
 
 /** Montserrat heading; navy for hierarchy. */

@@ -26,11 +26,23 @@ export function Card({
   );
 }
 
+export interface CardHeaderProps extends ComponentPropsWithRef<"div"> {
+  /** Draw a hairline under the header. */
+  divider?: boolean;
+}
+
 export function CardHeader({
+  divider = false,
   className,
   ...rest
-}: ComponentPropsWithRef<"div">) {
-  return <div {...rest} className={cx(styles.header, className)} />;
+}: CardHeaderProps) {
+  return (
+    <div
+      {...rest}
+      data-divider={divider || undefined}
+      className={cx(styles.header, className)}
+    />
+  );
 }
 
 export function CardTitle({ level = 3, ...rest }: HeadingProps) {

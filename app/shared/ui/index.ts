@@ -6,6 +6,7 @@
  */
 
 export * from "./Accordion";
+export * from "./Alert";
 export * from "./Badge";
 export * from "./Breadcrumb";
 export * from "./Button";
@@ -24,12 +25,15 @@ export * from "./DropdownMenu";
 export { Field, type FieldProps, useFieldContext } from "./Field";
 export { InputGroup, type InputGroupProps } from "./InputGroup";
 export * from "./icons";
+export * from "./LazySection";
 export { Logo, type LogoProps } from "./Logo";
 export { type MenuItem, MenuList, type MenuListProps } from "./Menu";
 export * from "./Menubar";
 export * from "./Pagination";
+export * from "./PasswordInput";
 export * from "./Sidebar";
 export * from "./Table";
 export * from "./TextArea";
 export * from "./TextInput";
+export * from "./TextLink";
 export * from "./Typography";

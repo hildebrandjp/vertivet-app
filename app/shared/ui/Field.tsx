@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, type ReactNode, useContext, useId } from "react";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useId,
+  useMemo,
+} from "react";
 import type { Size, ValidationState } from "../common";
 import { cx } from "../utils/cx";
 import styles from "./Field.module.css";
@@ -53,6 +59,10 @@ export function useFieldControl(props: FieldControlInput, fallbackSize: Size) {
 
 export interface FieldProps {
   label?: ReactNode;
+  /** default = sentence case; caps = small uppercase label (auth forms). */
+  labelVariant?: "default" | "caps";
+  /** Content at the end of the label row, e.g. a "Forgot password?" link. */
+  labelAction?: ReactNode;
   /** Helper text shown under the control. */
   hint?: ReactNode;
   /** Error message. Its presence switches the state to "error". */
@@ -78,6 +88,8 @@ export interface FieldProps {
  */
 export function Field({
   label,
+  labelVariant = "default",
+  labelAction,
   hint,
   error,
   success,
@@ -102,33 +114,49 @@ export function Field({
         : null;
   const messageId = message ? `${controlId}-message` : undefined;
   const hintId = hint ? `${controlId}-hint` : undefined;
+  const describedBy = cx(messageId, hintId) || undefined;
+
+  // Stable context value: consumers only re-render when something changes.
+  const contextValue = useMemo<FieldContextValue>(
+    () => ({
+      controlId,
+      describedBy,
+      state: resolvedState,
+      required,
+      disabled,
+      size,
+    }),
+    [controlId, describedBy, resolvedState, required, disabled, size],
+  );
 
   return (
     <div
       className={cx(styles.field, className)}
       data-disabled={disabled || undefined}
     >
-      {label ? (
-        <label htmlFor={controlId} className={styles.label}>
-          {label}
-          {required ? (
-            <span className={styles.required} aria-hidden="true">
-              *
-            </span>
+      {label || labelAction ? (
+        <div className={styles.labelRow}>
+          {label ? (
+            <label
+              htmlFor={controlId}
+              className={styles.label}
+              data-variant={labelVariant}
+            >
+              {label}
+              {required ? (
+                <span className={styles.required} aria-hidden="true">
+                  *
+                </span>
+              ) : null}
+            </label>
           ) : null}
-        </label>
+          {labelAction ? (
+            <span className={styles.labelAction}>{labelAction}</span>
+          ) : null}
+        </div>
       ) : null}
 
-      <FieldContext.Provider
-        value={{
-          controlId,
-          describedBy: cx(messageId, hintId) || undefined,
-          state: resolvedState,
-          required,
-          disabled,
-          size,
-        }}
-      >
+      <FieldContext.Provider value={contextValue}>
         {children}
       </FieldContext.Provider>
 
