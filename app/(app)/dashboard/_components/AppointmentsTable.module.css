@@ -1,0 +1,55 @@
+.table {
+  min-width: 620px;
+  font-size: var(--font-size-sm);
+}
+
+.table td {
+  padding-block: 20px;
+}
+
+.pet {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.primary {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.secondary {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.service {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-heading);
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: 85px;
+  padding: 0 var(--space-3);
+}
+.skeletonRow + .skeletonRow {
+  border-top: var(--border-width) solid var(--color-border);
+}

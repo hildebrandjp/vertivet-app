@@ -1,0 +1,16 @@
+.breadcrumb {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* On phones only the current page fits; earlier steps stay in the a11y tree. */
+@media (max-width: 640px) {
+  .breadcrumb li:not(:last-child) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+}

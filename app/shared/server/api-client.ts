@@ -1,43 +1,56 @@
 import "server-only";
+import { getApiBaseUrl } from "./env";
 
 /**
- * The single HTTP client for the VertiVet auth/onboarding API.
- * Owns the base URL, timeout, caching policy and status -> failure mapping
- * so every auth flow behaves the same way.
+ * The single HTTP client for the VertiVet backend. Owns the base URL,
+ * auth header, timeout, caching policy and status -> failure mapping.
  */
 
-export type ApiFailure = "rejected" | "rate_limited" | "unavailable";
+export type ApiFailure =
+  | "unauthorized"
+  | "rejected"
+  | "rate_limited"
+  | "unavailable";
 
 export type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; failure: ApiFailure; status?: number };
 
+interface ApiRequestOptions {
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  body?: unknown;
+  /** Session token, sent as a Bearer header. */
+  token?: string;
+}
+
 const REQUEST_TIMEOUT_MS = 10_000;
 
 function toFailure(status: number): ApiFailure {
+  if (status === 401) return "unauthorized";
   if (status === 429) return "rate_limited";
   if (status >= 400 && status < 500) return "rejected";
   return "unavailable";
 }
 
-export async function postToAuthApi<T = unknown>(
+export async function apiRequest<T = unknown>(
   path: string,
-  body: unknown,
+  { method = "GET", body, token }: ApiRequestOptions = {},
 ): Promise<ApiResult<T | null>> {
-  const baseUrl = process.env.AUTH_API_URL;
+  const baseUrl = getApiBaseUrl();
   if (!baseUrl) {
-    console.error("[auth] AUTH_API_URL is not configured.");
+    console.error("[api] API_BASE_URL is not configured.");
     return { ok: false, failure: "unavailable" };
   }
 
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+  if (token) headers.Authorization = `Bearer ${token}`;
+
   try {
     const response = await fetch(new URL(path, baseUrl), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(body),
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
       cache: "no-store",
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
@@ -56,7 +69,7 @@ export async function postToAuthApi<T = unknown>(
     const data = isJson ? ((await response.json()) as T) : null;
     return { ok: true, data };
   } catch (error) {
-    console.error(`[auth] POST ${path} failed.`, error);
+    console.error(`[api] ${method} ${path} failed.`, error);
     return { ok: false, failure: "unavailable" };
   }
 }

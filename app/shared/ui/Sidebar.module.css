@@ -1,8 +1,12 @@
 .sidebar {
+  --_divider: rgb(255 255 255 / 0.12);
+  --_label: rgb(255 255 255 / 0.6);
+
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  width: var(--sidebar-width);
+  /* Containers resize via --sidebar-inline-size (no specificity fights). */
+  width: var(--sidebar-inline-size, var(--sidebar-width));
   min-height: 100%;
   padding: var(--space-4) var(--space-3);
   color: var(--color-nav-text);
@@ -72,5 +76,36 @@
 
 .footer {
   padding-top: var(--space-3);
-  border-top: var(--border-width) solid rgb(255 255 255 / 0.12);
+  border-top: var(--border-width) solid var(--_divider);
+}
+
+.sectionLabel {
+  padding: 0 12px var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-caps);
+  text-transform: uppercase;
+  color: var(--_label);
+}
+
+/* Light variant: re-map the nav tokens locally; all rules above still apply. */
+.sidebar[data-variant="light"] {
+  --color-nav-bg: var(--color-surface);
+  --color-nav-text: var(--color-text-heading);
+  --color-nav-text-active: var(--color-primary-contrast);
+  --color-nav-item-hover: var(--color-surface-hover);
+  --color-nav-item-active: var(--color-primary);
+  --_divider: var(--color-border);
+  --_label: var(--color-text-muted);
+
+  border-inline-end: var(--border-width) solid var(--color-border);
+}
+.sidebar[data-variant="light"] .link:hover:not([aria-current="page"]) {
+  color: var(--color-text-heading);
+}
+.sidebar[data-variant="light"] .link:not([aria-current="page"]) .icon {
+  color: var(--color-text-muted);
+}
+.sidebar[data-variant="light"] .link:focus-visible {
+  outline-color: var(--color-primary);
 }

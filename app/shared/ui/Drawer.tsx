@@ -19,6 +19,8 @@ export interface DrawerProps {
   side?: "left" | "right";
   size?: "sm" | "md" | "lg";
   closeOnBackdropClick?: boolean;
+  /** "none" lets edge-to-edge content (e.g. a sidebar) fill the body. */
+  bodyPadding?: "default" | "none";
   className?: string;
 }
 
@@ -33,6 +35,7 @@ export function Drawer({
   side = "right",
   size = "md",
   closeOnBackdropClick = true,
+  bodyPadding = "default",
   className,
 }: DrawerProps) {
   const ref = useModalDialog({ open, onOpenChange, closeOnBackdropClick });
@@ -61,7 +64,9 @@ export function Drawer({
             onClick={() => onOpenChange(false)}
           />
         </header>
-        <div className={styles.body}>{children}</div>
+        <div className={styles.body} data-padding={bodyPadding}>
+          {children}
+        </div>
         {footer ? <footer className={styles.footer}>{footer}</footer> : null}
       </div>
     </dialog>

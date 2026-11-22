@@ -84,7 +84,8 @@ change the values. To rebrand, change the palette layer only.
 | 19 | Collapsible     | `Collapsible`                                   |
 | –  | Feedback        | `Alert` (banner), `StatusPanel` (success / result state) |
 | –  | Forms (extra)   | `PasswordInput` (show/hide), `TextLink`         |
-| –  | Performance     | `LazySection` (+ `useInView`) for scrollable pages |
+| –  | Performance     | `LazySection` (+ `useInView`), `Skeleton` (Suspense fallbacks) |
+| –  | Layout / lists  | `SectionHeader`, `ListCard` + `ListCardGroup`, `Avatar` |
 | –  | Brand           | `Logo`, `Heading`, `Text`, `Eyebrow`, `Card*`, `Sidebar`, `DateStrip`, icons |
 
 ## Forms: one source of truth

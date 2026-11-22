@@ -21,6 +21,10 @@ export interface SidebarProps {
   /** Usually <Logo inverse />. */
   header?: ReactNode;
   footer?: ReactNode;
+  /** brand = navy panel (moodboard); light = white panel (app shell). */
+  variant?: "brand" | "light";
+  /** Small uppercase label above the links, e.g. "Main menu". */
+  sectionLabel?: string;
   /** Override the active link (defaults to the current pathname). */
   activeHref?: string;
   "aria-label"?: string;
@@ -32,11 +36,13 @@ function isActive(item: SidebarItem, current: string) {
   return current === item.href || current.startsWith(`${item.href}/`);
 }
 
-/** Navy sidebar with a royal-blue active state (moodboard). */
+/** Navigation sidebar with a royal-blue active state. */
 export function Sidebar({
   items,
   header,
   footer,
+  variant = "brand",
+  sectionLabel,
   activeHref,
   "aria-label": ariaLabel = "Main navigation",
   className,
@@ -45,9 +51,14 @@ export function Sidebar({
   const current = activeHref ?? pathname ?? "";
 
   return (
-    <aside className={cx(styles.sidebar, className)}>
+    <aside className={cx(styles.sidebar, className)} data-variant={variant}>
       {header ? <div className={styles.header}>{header}</div> : null}
       <nav aria-label={ariaLabel} className={styles.nav}>
+        {sectionLabel ? (
+          <p className={styles.sectionLabel} aria-hidden="true">
+            {sectionLabel}
+          </p>
+        ) : null}
         <ul className={styles.list}>
           {items.map((item) => {
             const active = isActive(item, current);

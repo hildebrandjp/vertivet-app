@@ -79,7 +79,7 @@
 }
 
 .miniSidebar {
-  width: 180px;
+  --sidebar-inline-size: 180px;
   border-radius: var(--radius-lg);
 }
 
@@ -137,6 +137,6 @@
     grid-template-columns: 1fr;
   }
   .miniSidebar {
-    width: 100%;
+    --sidebar-inline-size: 100%;
   }
 }

@@ -5,7 +5,19 @@ export const ROUTES = {
   forgotPassword: "/forgot-password",
   requestAccount: "/request-account",
   dashboard: "/dashboard",
+  pets: "/pets",
+  newPet: "/pets/new",
+  appointments: "/appointments",
+  newAppointment: "/appointments/new",
+  settings: "/settings",
   showcase: "/showcase",
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
+
+/** Builders for parameterised URLs. */
+export const routeTo = {
+  pet: (id: string) => `${ROUTES.pets}/${encodeURIComponent(id)}`,
+  appointment: (id: string) =>
+    `${ROUTES.appointments}/${encodeURIComponent(id)}`,
+};

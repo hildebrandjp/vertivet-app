@@ -1,0 +1,47 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.primary,
+.secondary,
+.pets {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.primary {
+  gap: var(--space-4);
+}
+
+.secondary {
+  gap: var(--space-5);
+}
+
+.pets {
+  gap: 12px;
+}
+
+@media (min-width: 640px) and (max-width: 1179px) {
+  /* Tablet: clinic photo and pets side by side under the table. */
+  .secondary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@media (min-width: 1180px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+}

@@ -1,22 +1,3 @@
 .lazy {
   min-width: 0;
 }
-
-.skeleton {
-  border-radius: var(--radius-lg);
-  background:
-    linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--color-surface-hover) 50%,
-      transparent 100%
-    )
-    0 0 / 200% 100% var(--color-surface-muted);
-  animation: shimmer 1.4s linear infinite;
-}
-
-@keyframes shimmer {
-  to {
-    background-position: -200% 0;
-  }
-}

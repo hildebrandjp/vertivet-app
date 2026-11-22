@@ -8,7 +8,9 @@ export interface BadgeProps extends ComponentPropsWithRef<"span"> {
   tone?: Tone;
   /** solid = filled, soft = tinted background, outline = border only. */
   variant?: "solid" | "soft" | "outline";
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
+  /** rounded = small radius (status chips); pill = fully rounded (counts). */
+  shape?: "rounded" | "pill";
   /** Leading status dot. */
   dot?: boolean;
 }
@@ -18,6 +20,7 @@ export function Badge({
   tone = "primary",
   variant = "solid",
   size = "md",
+  shape = "rounded",
   dot = false,
   className,
   children,
@@ -29,6 +32,7 @@ export function Badge({
       data-tone={tone}
       data-variant={variant}
       data-size={size}
+      data-shape={shape}
       className={cx(styles.badge, className)}
     >
       {dot ? <span className={styles.dot} aria-hidden="true" /> : null}

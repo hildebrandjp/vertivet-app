@@ -81,6 +81,10 @@
   padding: 0 var(--space-4) var(--space-4);
 }
 
+.body[data-padding="none"] {
+  padding: 0;
+}
+
 .footer {
   display: flex;
   flex-direction: column;

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 440" fill="none" preserveAspectRatio="xMidYMid slice">
+  <!-- Placeholder illustration in brand colours. Replace with the final photo. -->
+  <rect width="560" height="440" fill="#EAF2FD"/>
+  <path d="M0 0h210c-20 70-90 110-150 90C30 80 10 60 0 40Z" fill="#0B3A6B"/>
+  <path d="M560 300c-60-10-120 30-130 90-4 20 0 40 6 50h124Z" fill="#FFCA3A"/>
+  <path d="M0 330c50-20 110 10 130 70l10 40H0Z" fill="#1E6FD9" opacity=".85"/>
+  <rect x="380" y="60" width="110" height="110" rx="22" fill="#1E6FD9"/>
+  <path d="M422 82h26v24h24v26h-24v24h-26v-24h-24v-26h24Z" fill="#fff"/>
+  <g fill="#0B3A6B">
+    <ellipse cx="270" cy="270" rx="70" ry="60"/>
+    <ellipse cx="194" cy="188" rx="26" ry="36" transform="rotate(-18 194 188)"/>
+    <ellipse cx="246" cy="150" rx="26" ry="37" transform="rotate(-6 246 150)"/>
+    <ellipse cx="300" cy="150" rx="26" ry="37" transform="rotate(6 300 150)"/>
+    <ellipse cx="350" cy="190" rx="26" ry="36" transform="rotate(18 350 190)"/>
+  </g>
+  <path d="M470 222c-8-16 10-31 24-21 14-10 32 5 24 21-6 12-24 22-24 22s-18-10-24-22Z" fill="#FFCA3A"/>
+</svg>

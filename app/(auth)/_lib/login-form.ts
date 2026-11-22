@@ -12,8 +12,7 @@ export type LoginField = (typeof LOGIN_FIELDS)[number];
 export type LoginState = FormState<LoginField>;
 export const LOGIN_INITIAL_STATE: LoginState = idleState();
 
-/** "Keep me logged in for N days": UI copy and cookie lifetime. */
-export const REMEMBER_ME_DAYS = 30;
+export { REMEMBER_ME_DAYS } from "@/app/shared/config/session";
 
 export const validateLogin = createValidator<LoginField>({
   email: [

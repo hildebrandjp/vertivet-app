@@ -103,3 +103,16 @@ export function formatDate(
 ): string {
   return new Intl.DateTimeFormat(locale, options).format(date);
 }
+
+/** Whole years and months between `from` and `to` (calendar based). */
+export function getAge(
+  from: Date,
+  to: Date,
+): { years: number; months: number } {
+  let months =
+    (to.getFullYear() - from.getFullYear()) * 12 +
+    (to.getMonth() - from.getMonth());
+  if (to.getDate() < from.getDate()) months -= 1;
+  months = Math.max(0, months);
+  return { years: Math.floor(months / 12), months: months % 12 };
+}

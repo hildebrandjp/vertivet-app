@@ -8,6 +8,7 @@ import {
   readFields,
 } from "@/app/shared/forms/form-state";
 import { normalizeEmail } from "@/app/shared/forms/normalize";
+import { createSession } from "@/app/shared/server/session";
 import { AUTH_ERROR_MESSAGES } from "../_lib/auth-errors";
 import { authenticate } from "../_lib/auth-service";
 import {
@@ -16,7 +17,6 @@ import {
   type LoginState,
   validateLogin,
 } from "../_lib/login-form";
-import { createSession } from "../_lib/session";
 
 /**
  * Login Server Action (used with useActionState). Re-validates with the same

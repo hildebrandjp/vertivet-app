@@ -1,0 +1,30 @@
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-1);
+  margin-inline-start: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-heading);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-full);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.trigger:hover,
+.trigger[aria-expanded="true"] {
+  background: var(--color-surface-hover);
+}
+
+.trigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+@media (max-width: 640px) {
+  .name {
+    display: none;
+  }
+}

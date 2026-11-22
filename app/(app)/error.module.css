@@ -1,0 +1,8 @@
+.error {
+  max-width: 480px;
+  padding: var(--space-7) var(--space-4);
+  margin: var(--space-6) auto;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+}

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useInView } from "../hooks/useInView";
 import { cx } from "../utils/cx";
 import styles from "./LazySection.module.css";
+import { Skeleton } from "./Skeleton";
 
 export interface LazySectionProps {
   children: ReactNode;
@@ -40,13 +41,7 @@ export function LazySection({
     >
       {inView
         ? children
-        : (fallback ?? (
-            <div
-              className={styles.skeleton}
-              style={{ minHeight }}
-              aria-hidden="true"
-            />
-          ))}
+        : (fallback ?? <Skeleton shape="rect" height={minHeight} />)}
     </div>
   );
 }

@@ -1,20 +1,24 @@
 import "server-only";
 import { cookies } from "next/headers";
-import { REMEMBER_ME_DAYS } from "./login-form";
+import { REMEMBER_ME_DAYS, SESSION_COOKIE } from "../config/session";
 
-export const SESSION_COOKIE = "vv_session";
 const SECONDS_PER_DAY = 60 * 60 * 24;
+
+/** Reads the session token. Calling this makes the render dynamic. */
+export async function getSessionToken(): Promise<string | null> {
+  return (await cookies()).get(SESSION_COOKIE)?.value ?? null;
+}
 
 /**
  * Stores the session token in an httpOnly cookie. Without "remember me"
  * it is a browser-session cookie; with it, it lasts REMEMBER_ME_DAYS.
+ * Only callable from Server Actions and Route Handlers.
  */
 export async function createSession(
   token: string,
   { remember }: { remember: boolean },
 ): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, token, {
+  (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

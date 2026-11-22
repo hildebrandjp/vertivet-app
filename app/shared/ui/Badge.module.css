@@ -21,6 +21,13 @@
   border-radius: var(--radius-sm);
 }
 
+.badge[data-size="lg"] {
+  min-width: 112px;
+  height: 32px;
+  padding: 0 12px;
+  font-size: var(--font-size-xs);
+}
+
 .badge[data-size="sm"] {
   min-width: 0;
   height: 20px;
@@ -69,6 +76,12 @@
 .badge[data-variant="outline"][data-tone="accent"],
 .badge[data-variant="outline"][data-tone="neutral"] {
   color: var(--color-text-heading);
+}
+
+.badge[data-shape="pill"] {
+  min-width: 0;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
 }
 
 .dot {
