@@ -1,0 +1,92 @@
+/* ---------------------------------------------------------------- Heading */
+.heading {
+  font-family: var(--font-family-heading);
+  color: var(--color-text-heading);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+}
+.heading[data-level="1"] {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+}
+.heading[data-level="2"] {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+.heading[data-level="3"] {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+.heading[data-level="4"] {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0;
+}
+
+/* ------------------------------------------------------------------- Text */
+.text {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+}
+.text[data-variant="supporting"] {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+.text[data-variant="label"] {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-heading);
+}
+.text[data-variant="small"] {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+.text[data-variant="eyebrow"] {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-caps);
+  color: var(--color-text-heading);
+}
+
+/* Tone overrides come last so they beat variant colours. */
+.text[data-tone="default"] {
+  color: var(--color-text);
+}
+.text[data-tone="muted"] {
+  color: var(--color-text-muted);
+}
+.text[data-tone="heading"] {
+  color: var(--color-text-heading);
+}
+.text[data-tone="primary"] {
+  color: var(--color-primary);
+}
+.text[data-tone="danger"] {
+  color: var(--color-danger);
+}
+.text[data-tone="success"] {
+  color: var(--color-success);
+}
+
+/* ---------------------------------------------------------------- Eyebrow */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-caps);
+  color: var(--color-text-heading);
+}
+.eyebrowDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+}

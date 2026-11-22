@@ -1,0 +1,87 @@
+.dataTable {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.title {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.search {
+  flex: 1;
+  min-width: 180px;
+}
+
+/* The outer card already has a border. */
+.tableWrapper {
+  border: 0;
+  border-radius: 0;
+}
+
+.selectCell {
+  width: 1%;
+  padding-inline-end: 0;
+}
+
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+}
+.sortButton:hover {
+  color: var(--color-text-heading);
+}
+
+.sortIcon {
+  display: inline-flex;
+  color: var(--color-text-subtle);
+}
+.sortIcon[data-active] {
+  color: var(--color-primary);
+}
+
+.empty {
+  padding-block: var(--space-5);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.summary {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}

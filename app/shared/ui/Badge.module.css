@@ -1,0 +1,79 @@
+.badge {
+  /* `--_main` is the tone colour, `--_on` the text on top of it. */
+  --_main: var(--color-primary);
+  --_on: var(--color-primary-contrast);
+  --_soft: var(--color-primary-soft);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 64px;
+  height: 24px;
+  padding: 0 var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--_on);
+  background: var(--_main);
+  border: var(--border-width) solid var(--_main);
+  border-radius: var(--radius-sm);
+}
+
+.badge[data-size="sm"] {
+  min-width: 0;
+  height: 20px;
+  padding: 0 6px;
+  font-size: 11px;
+}
+
+/* ------------------------------------------------------------------ Tones */
+.badge[data-tone="accent"] {
+  --_main: var(--color-accent);
+  --_on: var(--color-accent-contrast);
+  --_soft: var(--color-accent-soft);
+}
+.badge[data-tone="neutral"] {
+  --_main: var(--color-disabled-bg);
+  --_on: var(--color-text-muted);
+  --_soft: var(--color-surface-hover);
+}
+.badge[data-tone="success"] {
+  --_main: var(--color-success);
+  --_on: var(--color-text-inverse);
+  --_soft: var(--color-success-soft);
+}
+.badge[data-tone="danger"] {
+  --_main: var(--color-danger);
+  --_on: var(--color-text-inverse);
+  --_soft: var(--color-danger-soft);
+}
+
+/* --------------------------------------------------------------- Variants */
+.badge[data-variant="soft"] {
+  color: var(--_main);
+  background: var(--_soft);
+  border-color: transparent;
+}
+.badge[data-variant="soft"][data-tone="accent"] {
+  color: var(--color-accent-contrast);
+}
+.badge[data-variant="soft"][data-tone="neutral"] {
+  color: var(--color-text-muted);
+}
+.badge[data-variant="outline"] {
+  color: var(--_main);
+  background: transparent;
+}
+.badge[data-variant="outline"][data-tone="accent"],
+.badge[data-variant="outline"][data-tone="neutral"] {
+  color: var(--color-text-heading);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+}

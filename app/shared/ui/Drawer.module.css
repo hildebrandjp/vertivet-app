@@ -1,0 +1,106 @@
+.drawer {
+  --_width: var(--drawer-width-md);
+
+  /* Override native <dialog> centring and pin to one edge. */
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+  width: min(var(--_width), 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+  border: 0;
+  border-inline-start: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+.drawer[data-side="left"] {
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+  border-inline-start: 0;
+  border-inline-end: var(--border-width) solid var(--color-border);
+}
+.drawer[data-size="sm"] {
+  --_width: var(--drawer-width-sm);
+}
+.drawer[data-size="lg"] {
+  --_width: var(--drawer-width-lg);
+}
+
+.drawer[open] {
+  animation: slide-in-end var(--duration-slow) var(--ease-standard);
+}
+.drawer[open][data-side="left"] {
+  animation-name: slide-in-start;
+}
+.drawer::backdrop {
+  background: var(--color-overlay);
+  animation: fade-in var(--duration-normal) var(--ease-standard);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+}
+
+.headings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.title {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.subtitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+@keyframes slide-in-end {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes slide-in-start {
+  from {
+    transform: translateX(-100%);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}

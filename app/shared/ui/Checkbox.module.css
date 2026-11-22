@@ -1,0 +1,108 @@
+.checkbox {
+  --_box: 16px;
+
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  cursor: pointer;
+}
+.checkbox[data-size="sm"] {
+  --_box: 14px;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+}
+.checkbox[data-disabled] {
+  color: var(--color-text-subtle);
+  cursor: not-allowed;
+}
+
+/* Box height matches the first text line so they align. */
+.control {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: calc(1em * var(--line-height-normal));
+}
+
+/* The real input sits on top of the box, invisible but clickable/focusable. */
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--_box);
+  height: var(--_box);
+  color: var(--color-primary-contrast);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.check,
+.dash {
+  display: none;
+  width: 75%;
+  height: 75%;
+}
+
+.input:hover:not(:disabled) + .box {
+  border-color: var(--color-primary);
+}
+
+.input:focus-visible + .box {
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  border-color: var(--color-primary);
+}
+
+.input:checked + .box,
+.input:indeterminate + .box {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.input:checked:not(:indeterminate) + .box .check {
+  display: block;
+}
+.input:indeterminate + .box .dash {
+  display: block;
+}
+
+.input:disabled + .box {
+  background: var(--color-surface-muted);
+  border-color: var(--color-border);
+}
+.input:disabled:checked + .box,
+.input:disabled:indeterminate + .box {
+  background: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  line-height: var(--line-height-normal);
+}
+
+.description {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}

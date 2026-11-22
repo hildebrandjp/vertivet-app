@@ -1,0 +1,100 @@
+.strip {
+  min-width: 0;
+  padding: var(--space-3);
+  margin: 0;
+  background: var(--color-surface-muted);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* Floating the legend takes it out of the fieldset border so it lays out
+ * like a normal full-width header row. */
+.header {
+  float: left;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 0;
+  margin-bottom: 12px;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-heading);
+}
+
+.caption {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-caps);
+  color: var(--color-text-muted);
+}
+
+.days {
+  clear: both;
+  display: grid;
+  grid-auto-columns: minmax(56px, 1fr);
+  grid-auto-flow: column;
+  gap: var(--space-2);
+  overflow-x: auto;
+}
+
+.day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-2) var(--space-1);
+  color: var(--color-text-heading);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.day:hover:not([data-disabled]) {
+  border-color: var(--color-primary);
+}
+
+.day:has(.input:checked) {
+  color: var(--color-primary-contrast);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.day:has(.input:focus-visible) {
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.day[data-disabled] {
+  color: var(--color-text-subtle);
+  background: var(--color-surface-muted);
+  cursor: not-allowed;
+}
+
+.input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.weekday {
+  font-size: 11px;
+}
+
+.date {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,21 @@
+.datePicker {
+  position: relative;
+  width: 100%;
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  inset-inline-start: 0;
+  z-index: var(--z-popover);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  animation: pop-in var(--duration-fast) var(--ease-standard);
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

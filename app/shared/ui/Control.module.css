@@ -1,0 +1,188 @@
+/* ============================================================================
+ * Shared form-control styles
+ * Used by TextInput, TextArea, InputGroup, Combobox and DatePicker so every
+ * field looks and behaves the same. Variants are driven by data attributes:
+ *   data-size="sm|md|lg|xl"   data-state="default|error|valid"
+ * Component-private custom properties are prefixed with `--_`.
+ * ========================================================================== */
+
+.control {
+  --_height: var(--control-height-md);
+  --_px: var(--control-padding-x-md);
+  --_font-size: var(--control-font-size-md);
+  --_border-color: var(--color-border);
+  --_ring-color: var(--color-focus-ring);
+
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: var(--_height);
+  padding: 0 var(--_px);
+  font-family: var(--font-family-body);
+  font-size: var(--_font-size);
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--_border-color);
+  border-radius: var(--radius-md);
+  outline: none;
+  appearance: none;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.control::placeholder {
+  color: var(--color-text-subtle);
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ Sizes */
+.control[data-size="sm"] {
+  --_height: var(--control-height-sm);
+  --_px: var(--control-padding-x-sm);
+  --_font-size: var(--control-font-size-sm);
+}
+.control[data-size="lg"] {
+  --_height: var(--control-height-lg);
+  --_px: var(--control-padding-x-lg);
+  --_font-size: var(--control-font-size-lg);
+}
+.control[data-size="xl"] {
+  --_height: var(--control-height-xl);
+  --_px: var(--control-padding-x-xl);
+  --_font-size: var(--control-font-size-xl);
+}
+
+/* -------------------------------------------------------- Interaction state */
+.control[data-state="default"]:not(
+    :disabled,
+    [data-disabled],
+    :focus-within,
+    [data-focused]
+  ):hover {
+  --_border-color: var(--color-border-strong);
+}
+
+.control:focus,
+.control:focus-within,
+.control[data-focused] {
+  --_border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--_ring-color);
+}
+
+/* Declared after :focus so validation colours win while focused. */
+.control[data-state="error"] {
+  --_border-color: var(--color-danger);
+  --_ring-color: var(--color-danger-ring);
+}
+.control[data-state="valid"] {
+  --_border-color: var(--color-success);
+  --_ring-color: var(--color-success-ring);
+}
+
+.control:disabled,
+.control[data-disabled] {
+  --_border-color: var(--color-border);
+  background: var(--color-surface-muted);
+  color: var(--color-text-subtle);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* --------------------------------------------------------------- Textarea */
+.multiline {
+  height: auto;
+  min-height: calc(var(--_height) * 2);
+  padding-block: calc((var(--_height) - 1.5em) / 2);
+  resize: vertical;
+}
+.multiline[data-resize="none"] {
+  resize: none;
+}
+.multiline[data-resize="both"] {
+  resize: both;
+}
+
+/* ----------------------------------------------------------- Input group */
+.group {
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+}
+
+.addon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--_height);
+  padding: 0 var(--_px);
+  color: var(--color-text-muted);
+  background: var(--color-surface-muted);
+  white-space: nowrap;
+}
+.addon[data-position="start"] {
+  border-inline-end: var(--border-width) solid var(--color-border);
+}
+.addon[data-position="end"] {
+  border-inline-start: var(--border-width) solid var(--color-border);
+}
+
+/* The input living inside a group drops its own chrome. */
+.control.grouped,
+.control.grouped:focus {
+  flex: 1;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* ------------------------------------------- Button-like trigger (select) */
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: start;
+  cursor: pointer;
+}
+.trigger[data-placeholder] .triggerValue {
+  color: var(--color-text-subtle);
+}
+.triggerValue {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.triggerIcon {
+  flex: none;
+  color: var(--color-text-muted);
+  font-size: 1.1em;
+}
+
+/* Wrapper that positions a trailing icon over an input. */
+.affixWrapper {
+  position: relative;
+  width: 100%;
+}
+.affixWrapper > .control {
+  padding-inline-end: calc(var(--_px) + 1.5em);
+}
+.affixIcon {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: var(--control-padding-x-md);
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.affixIcon[data-open] {
+  transform: rotate(180deg);
+}

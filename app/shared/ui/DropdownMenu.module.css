@@ -1,0 +1,23 @@
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  inset-inline-start: 0;
+  z-index: var(--z-dropdown);
+  animation: pop-in var(--duration-fast) var(--ease-standard);
+}
+.popover[data-align="end"] {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

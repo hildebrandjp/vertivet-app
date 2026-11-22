@@ -1,0 +1,78 @@
+.menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  padding: var(--space-1);
+  background: var(--color-surface-raised);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  outline: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 10px 12px;
+  font-size: var(--font-size-sm);
+  text-align: start;
+  color: var(--color-text-heading);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+/* Hairline between consecutive items, as in the moodboard. */
+.item + .item {
+  box-shadow: 0 calc(-1 * var(--border-width)) 0 var(--color-border);
+}
+
+.item:hover,
+.item:focus-visible {
+  outline: none;
+  background: var(--color-surface-hover);
+}
+.item:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--color-focus-ring);
+}
+
+.item[data-tone="danger"] {
+  color: var(--color-danger);
+}
+.item[data-tone="danger"]:hover,
+.item[data-tone="danger"]:focus-visible {
+  background: var(--color-danger-soft);
+}
+
+.item[aria-disabled="true"] {
+  color: var(--color-text-subtle);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--color-text-muted);
+}
+
+.label {
+  flex: 1;
+  min-width: 0;
+}
+
+.shortcut {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-subtle);
+}
+
+.separator {
+  border: 0;
+  height: var(--border-width);
+  margin: var(--space-1) 0;
+  background: var(--color-border);
+}

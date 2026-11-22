@@ -1,0 +1,82 @@
+.pagination {
+  --_size: 32px;
+  --_gap: var(--space-2);
+}
+.pagination[data-variant="compact"] {
+  --_size: 24px;
+  --_gap: 2px;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--_gap);
+  padding: 0;
+  list-style: none;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-width: var(--_size);
+  height: var(--_size);
+  padding: 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+.button[data-kind="step"] {
+  padding: 0 12px;
+}
+
+.button:hover:not([data-disabled], [aria-current="page"]) {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.button[aria-current="page"] {
+  color: var(--color-primary-contrast);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.button[data-disabled] {
+  color: var(--color-text-subtle);
+  cursor: not-allowed;
+}
+
+/* Compact: borderless and text-sized, as in the data-table footer. */
+.pagination[data-variant="compact"] .button {
+  padding: 0 6px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-color: transparent;
+  background: transparent;
+}
+.pagination[data-variant="compact"] .button[aria-current="page"] {
+  color: var(--color-primary-contrast);
+  background: var(--color-primary);
+}
+
+.ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--_size);
+  color: var(--color-text-muted);
+}
