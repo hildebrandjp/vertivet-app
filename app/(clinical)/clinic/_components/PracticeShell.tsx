@@ -143,7 +143,10 @@ export function PracticeShell({
   query: string;
   children: ReactNode;
 }) {
-  const active = overview.queue.some(({ status }) => status === "in_exam");
+  const active = overview.queue.find(({ status }) => status === "in_exam");
+  const isSchedule = view === "queue";
+  const activeName =
+    active && overview.patients.find(({ id }) => id === active.patientId)?.name;
   const registryView = view === "patients" || view === "owners";
   const name =
     [clinician.firstName, clinician.lastName].filter(Boolean).join(" ") ||
@@ -153,9 +156,11 @@ export function PracticeShell({
       ? "Doctor’s Practice Overview"
       : view === "owners"
         ? "Pet Owners & Client Directory"
-        : registryView
-          ? "Patients & Pet Owners Management"
-          : (VIEWS.find(({ id }) => id === view)?.label ?? "Clinical Portal");
+        : isSchedule
+          ? "Queue Schedule & Daily Operations"
+          : registryView
+            ? "Patients & Pet Owners Management"
+            : (VIEWS.find(({ id }) => id === view)?.label ?? "Clinical Portal");
   const sidebar = (
     <PracticeSidebar
       clinician={clinician}
@@ -178,7 +183,21 @@ export function PracticeShell({
               { label: title },
             ]}
           />
-          {registryView ? (
+          {isSchedule ? (
+            <Badge
+              variant="soft"
+              shape="pill"
+              dot
+              className={styles.scheduleStatus}
+            >
+              {overview.room}
+              {activeName
+                ? ` · ${activeName} in session`
+                : active
+                  ? " · In Session"
+                  : ""}
+            </Badge>
+          ) : registryView ? (
             <ButtonLink
               href="#registry-search"
               size="sm"
@@ -210,14 +229,16 @@ export function PracticeShell({
               </form>
             </search>
           )}
-          <ButtonLink
-            href={`${ROUTES.clinicalDashboard}#clinical-alerts`}
-            size="sm"
-            variant="secondary"
-            startIcon={<BellIcon />}
-            aria-label="Clinical alerts"
-          />
-          {registryView ? (
+          {!isSchedule && (
+            <ButtonLink
+              href={`${ROUTES.clinicalDashboard}#clinical-alerts`}
+              size="sm"
+              variant="secondary"
+              startIcon={<BellIcon />}
+              aria-label="Clinical alerts"
+            />
+          )}
+          {registryView || isSchedule ? (
             <div className={styles.account}>
               <Avatar name={name} decorative />
               <Text variant="label" tone="heading">

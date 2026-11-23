@@ -1,0 +1,111 @@
+.panel,
+.timeline,
+.weekVisits,
+.weekDay,
+.visit,
+.time {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.timeline,
+.weekVisits {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.weekVisits,
+.weekDay,
+.visit,
+.time {
+  gap: var(--space-1);
+}
+
+.rooms,
+.week {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-3);
+}
+
+.room {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+}
+
+.controls,
+.slotActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.slot {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 7rem) minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 7rem;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-muted);
+}
+
+.slot[data-active],
+.room[data-active] {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.time {
+  align-self: start;
+  justify-items: start;
+  color: var(--color-text-heading);
+  font-weight: var(--font-weight-semibold);
+}
+
+.visit {
+  border-inline-start: 1px solid var(--color-border-strong);
+  padding-inline-start: var(--space-3);
+  overflow-wrap: anywhere;
+}
+
+.slotActions {
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.weekDay {
+  align-content: start;
+  gap: var(--space-2);
+}
+
+.weekVisits li {
+  padding-block: var(--space-2);
+  border-block-start: 1px solid var(--color-border);
+}
+
+@media (max-width: 700px) {
+  .slot {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  .time,
+  .slotActions {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .visit {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+}

@@ -18,9 +18,12 @@ import { PatientChart } from "./_components/PatientChart";
 import { PatientRegistry } from "./_components/PatientRegistry";
 import { PracticeShell, readPracticeView } from "./_components/PracticeShell";
 import { QueuePanel } from "./_components/QueuePanel";
+import { QueueSchedule } from "./_components/QueueSchedule";
 import { getPractice } from "./_lib/data";
 import { readRegistryQuery } from "./_lib/registry";
 import { getRegistry } from "./_lib/registry-data";
+import { readScheduleQuery } from "./_lib/schedule";
+import { getSchedule } from "./_lib/schedule-data";
 import styles from "./clinic.module.css";
 
 export const metadata: Metadata = {
@@ -38,6 +41,8 @@ async function Practice({
     getPractice(),
     inRegistry ? getRegistry(filters) : null,
   ]);
+  const scheduleQuery = readScheduleQuery(params, overview.date);
+  const schedule = view === "queue" ? await getSchedule(scheduleQuery) : null;
   const inExam = overview.queue.filter(({ status }) => status === "in_exam");
   const activePatient = overview.patients.find(
     ({ id }) => id === inExam[0]?.patientId,
@@ -62,7 +67,7 @@ async function Practice({
           Demo workspace with sample records. Use fictional patient information.
         </Alert>
       )}
-      {!inRegistry && (
+      {!inRegistry && !schedule && (
         <SectionHeader
           as="h1"
           title={titles[view]}
@@ -102,7 +107,14 @@ async function Practice({
           </div>
         </>
       )}
-      {view === "queue" && <QueuePanel overview={overview} />}
+      {schedule && (
+        <QueueSchedule
+          schedule={schedule}
+          query={scheduleQuery}
+          today={overview.date}
+          demo={demo}
+        />
+      )}
       {registry &&
         (view === "owners" ? (
           <ClientDirectory

@@ -95,6 +95,11 @@ export type ClinicalChange =
     }
   | { kind: "microchip"; patientId: string; chip: string }
   | { kind: "call"; visitId: string }
+  | {
+      kind: "walk_in";
+      reason: string;
+      patient: { id: string } | { name: string; owner: string };
+    }
   | { kind: ClinicalEntry["kind"]; patientId: string; text: string };
 
 export const QUEUE_LABELS = {
