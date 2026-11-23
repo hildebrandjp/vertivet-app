@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { isEmail, isPhone } from "@/app/shared/forms/validation";
 import { Avatar } from "@/app/shared/ui/Avatar";
 import { Badge } from "@/app/shared/ui/Badge";
 import {
@@ -12,8 +11,9 @@ import {
 } from "@/app/shared/ui/Table";
 import { Text } from "@/app/shared/ui/Typography";
 import type { ClinicalEntry, ClinicalPatient } from "../_lib/model";
-import { type RegistryOwner, SPECIES_LABELS } from "../_lib/registry";
+import { SPECIES_LABELS } from "../_lib/registry";
 import styles from "../registry.module.css";
+import { Email, Phone } from "./ClientContactLinks";
 import { ClinicalAction } from "./ClinicalAction";
 import { PatientChart } from "./PatientChart";
 
@@ -24,9 +24,8 @@ const PATIENT_COLUMNS = [
   "Vaccination Status",
   "Actions",
 ];
-const OWNER_COLUMNS = ["Pet Owner", "Phone", "Email", "Registered Patients"];
 
-function RegistryTable({
+export function RegistryTable({
   label,
   columns,
   empty,
@@ -63,28 +62,6 @@ function RegistryTable({
       </TableBody>
     </Table>
   );
-}
-
-function Phone({ value }: { value?: string }) {
-  return value ? (
-    isPhone(value) ? (
-      <a href={`tel:${value.replace(/[^+\d]/g, "")}`}>{value}</a>
-    ) : (
-      value
-    )
-  ) : null;
-}
-
-function Email({ value }: { value?: string }) {
-  return value ? (
-    isEmail(value) ? (
-      <a href={`mailto:${encodeURIComponent(value).replace("%40", "@")}`}>
-        {value}
-      </a>
-    ) : (
-      value
-    )
-  ) : null;
 }
 
 const VACCINATION_TONES = {
@@ -181,33 +158,6 @@ export function PatientsTable({
               />
             </div>
           </TableCell>
-        </TableRow>
-      ))}
-    </RegistryTable>
-  );
-}
-
-export function OwnersTable({ owners }: { owners: RegistryOwner[] }) {
-  return (
-    <RegistryTable
-      label="Pet owners registry"
-      columns={OWNER_COLUMNS}
-      empty={!owners.length}
-    >
-      {owners.map(({ id, name, phone, email, pets }) => (
-        <TableRow key={id}>
-          <TableCell>
-            <Text variant="label" tone="heading">
-              {name}
-            </Text>
-          </TableCell>
-          <TableCell className={styles.contactCell}>
-            {phone ? <Phone value={phone} /> : "Not recorded"}
-          </TableCell>
-          <TableCell className={styles.contactCell}>
-            {email ? <Email value={email} /> : "Not recorded"}
-          </TableCell>
-          <TableCell>{pets.join(", ") || "None"}</TableCell>
         </TableRow>
       ))}
     </RegistryTable>

@@ -66,7 +66,23 @@ export interface PracticeOverview {
   entries: ClinicalEntry[];
 }
 
+export interface ClientContact {
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+}
+
+export interface ClientRecord extends ClientContact {
+  id: string;
+  memberId?: string;
+  status?: "active" | "inactive";
+  lastConsultationAt?: string;
+}
+
 export type ClinicalChange =
+  | { kind: "client_intake"; contact: ClientContact }
+  | { kind: "client_update"; ownerId: string; contact: ClientContact }
   | {
       kind: "intake";
       name: string;

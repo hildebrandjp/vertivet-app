@@ -5,13 +5,18 @@ import { cache } from "react";
 import { APP_TIME_ZONE } from "@/app/shared/config/locale";
 import { todayInTimeZone } from "@/app/shared/utils/date";
 import {
+  type ClientRecord,
   type ClinicalChange,
   type ClinicalEntry,
   type ClinicalPatient,
   isClinicalSpecies,
   type PracticeOverview,
 } from "./model";
-import { groupRegistryOwners, normalizeMicrochip } from "./registry";
+import {
+  groupRegistryOwners,
+  normalizeMicrochip,
+  registryOwnerId,
+} from "./registry";
 
 const COOKIE = "vv_clinical_demo";
 const PATIENTS: ClinicalPatient[] = [
@@ -112,6 +117,7 @@ interface DemoState {
   entries: ClinicalEntry[];
   called: string[];
   chips: Record<string, string>;
+  clients: ClientRecord[];
 }
 
 async function readState(): Promise<DemoState> {
@@ -142,6 +148,7 @@ async function readState(): Promise<DemoState> {
                 species,
                 ownerEmail,
                 ownerPhone,
+                ownerId,
               }: ClinicalPatient) => ({
                 id,
                 name,
@@ -151,6 +158,7 @@ async function readState(): Promise<DemoState> {
                 species: isClinicalSpecies(species) ? species : undefined,
                 ownerEmail: validText(ownerEmail) ? ownerEmail : undefined,
                 ownerPhone: validText(ownerPhone) ? ownerPhone : undefined,
+                ownerId: validText(ownerId) ? ownerId : undefined,
               }),
             )
         : [],
@@ -165,6 +173,23 @@ async function readState(): Promise<DemoState> {
           )
         : [],
       called: Array.isArray(value.called) ? value.called.filter(validText) : [],
+      clients: Array.isArray(value.clients)
+        ? value.clients.filter(
+            (client: ClientRecord) =>
+              client &&
+              [client.id, client.name].every(validText) &&
+              [
+                client.email,
+                client.phone,
+                client.address,
+                client.memberId,
+                client.lastConsultationAt,
+              ].every((item) => item === undefined || validText(item)) &&
+              (client.status === undefined ||
+                client.status === "active" ||
+                client.status === "inactive"),
+          )
+        : [],
       chips: Object.fromEntries(
         Object.entries(value.chips ?? {}).filter(
           (entry): entry is [string, string] =>
@@ -173,8 +198,31 @@ async function readState(): Promise<DemoState> {
       ),
     };
   } catch {
-    return { patients: [], entries: [], called: [], chips: {} };
+    return { patients: [], entries: [], called: [], chips: {}, clients: [] };
   }
+}
+
+function demoClients(state: DemoState, date: string): ClientRecord[] {
+  const recorded = new Map(state.clients.map((client) => [client.id, client]));
+  const recentDate = new Date(Date.parse(date) - 7 * 86_400_000).toISOString();
+  const fixtures = groupRegistryOwners(PATIENTS).map(
+    ({ id, name, email, phone }, index): ClientRecord => {
+      const saved = recorded.get(id);
+      recorded.delete(id);
+      return (
+        saved ?? {
+          id,
+          name,
+          email,
+          phone,
+          memberId: `VR-${40912 + index}`,
+          status: "active",
+          ...(index < 3 && { lastConsultationAt: recentDate }),
+        }
+      );
+    },
+  );
+  return [...fixtures, ...recorded.values()];
 }
 
 function overview(state: DemoState): PracticeOverview {
@@ -208,19 +256,33 @@ function overview(state: DemoState): PracticeOverview {
       status: "scheduled",
     },
   ] as const;
-  const patients = [...PATIENTS, ...state.patients].map((patient) =>
-    Object.hasOwn(state.chips, patient.id)
-      ? { ...patient, chip: state.chips[patient.id], chipVerified: false }
-      : patient,
-  );
+  const clients = new Map(state.clients.map((client) => [client.id, client]));
+  const patients = [...PATIENTS, ...state.patients].map((patient) => {
+    const ownerId = registryOwnerId(patient);
+    const owner = clients.get(ownerId);
+    return {
+      ...patient,
+      ownerId,
+      ...(owner && {
+        owner: owner.name,
+        ownerEmail: owner.email,
+        ownerPhone: owner.phone,
+      }),
+      ...(Object.hasOwn(state.chips, patient.id) && {
+        chip: state.chips[patient.id],
+        chipVerified: false,
+      }),
+    };
+  });
+  const date = todayInTimeZone(APP_TIME_ZONE);
   return {
-    date: todayInTimeZone(APP_TIME_ZONE),
+    date,
     clinicName: "VertiVet Central",
     room: "Exam Room 2",
     counts: {
       booked: 6,
       patients: patients.length,
-      owners: groupRegistryOwners(patients).length,
+      owners: groupRegistryOwners(patients, demoClients(state, date)).length,
       reports: 3,
     },
     patients,
@@ -246,17 +308,50 @@ function overview(state: DemoState): PracticeOverview {
   };
 }
 
-export const getDemoOverview = cache(async () => {
+export const getDemoPractice = cache(async () => {
   await connection();
-  return overview(await readState());
+  const state = await readState();
+  const practice = overview(state);
+  return { overview: practice, clients: demoClients(state, practice.date) };
 });
+
+export async function getDemoOverview() {
+  return (await getDemoPractice()).overview;
+}
 
 export async function applyDemoChange(
   change: ClinicalChange,
 ): Promise<boolean> {
   const state = await readState();
   const current = overview(state);
-  if (change.kind === "intake" || change.kind === "microchip") {
+  if (change.kind === "client_intake" || change.kind === "client_update") {
+    const owners = groupRegistryOwners(
+      current.patients,
+      demoClients(state, current.date),
+    );
+    const ownerId =
+      change.kind === "client_update" ? change.ownerId : crypto.randomUUID();
+    const existing = owners.find(({ id }) => id === ownerId);
+    if (change.kind === "client_update" && !existing) return false;
+    const email = change.contact.email?.toLowerCase();
+    if (
+      email &&
+      owners.some(
+        (owner) => owner.id !== ownerId && owner.email?.toLowerCase() === email,
+      )
+    )
+      return false;
+    const record = {
+      id: ownerId,
+      ...change.contact,
+      memberId: existing?.memberId,
+      lastConsultationAt: existing?.lastConsultationAt,
+      status: existing?.status ?? "active",
+    } as const;
+    const index = state.clients.findIndex(({ id }) => id === ownerId);
+    if (index < 0) state.clients.push(record);
+    else state.clients[index] = record;
+  } else if (change.kind === "intake" || change.kind === "microchip") {
     const { chip } = change;
     const target = change.kind === "microchip" ? change.patientId : undefined;
     if (
@@ -270,7 +365,21 @@ export async function applyDemoChange(
       return false;
     if (change.kind === "intake") {
       const { kind: _kind, ...patient } = change;
-      state.patients.push({ id: crypto.randomUUID(), ...patient });
+      const owners = groupRegistryOwners(
+        current.patients,
+        demoClients(state, current.date),
+      );
+      const ownerId = patient.ownerEmail
+        ? owners.find(
+            (owner) =>
+              owner.email?.toLowerCase() === patient.ownerEmail?.toLowerCase(),
+          )?.id
+        : undefined;
+      state.patients.push({
+        id: crypto.randomUUID(),
+        ...patient,
+        ownerId: ownerId ?? crypto.randomUUID(),
+      });
     } else {
       const patient = current.patients.find(
         ({ id }) => id === change.patientId,

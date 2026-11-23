@@ -151,9 +151,11 @@ export function PracticeShell({
   const title =
     view === "overview"
       ? "Doctor’s Practice Overview"
-      : registryView
-        ? "Patients & Pet Owners Management"
-        : (VIEWS.find(({ id }) => id === view)?.label ?? "Clinical Portal");
+      : view === "owners"
+        ? "Pet Owners & Client Directory"
+        : registryView
+          ? "Patients & Pet Owners Management"
+          : (VIEWS.find(({ id }) => id === view)?.label ?? "Clinical Portal");
   const sidebar = (
     <PracticeSidebar
       clinician={clinician}

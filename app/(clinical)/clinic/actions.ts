@@ -25,6 +25,37 @@ export async function saveClinicalChange(
   const value = (field: string) => readString(data, field).trim();
   let change: ClinicalChange;
   switch (kind) {
+    case "client_intake":
+    case "client_update": {
+      const name = value("name");
+      const email = value("email");
+      const phone = value("phone");
+      const address = value("address");
+      if (
+        !name ||
+        name.length > 100 ||
+        address.length > 200 ||
+        (email && (email.length > 254 || !isEmail(email))) ||
+        (phone && (phone.length > 40 || !isPhone(phone))) ||
+        (kind === "client_update" && !id)
+      ) {
+        return {
+          status: "error",
+          message: "Enter a client name and check the contact details.",
+        };
+      }
+      const contact = {
+        name,
+        email: email || undefined,
+        phone: phone || undefined,
+        address: address || undefined,
+      };
+      change =
+        kind === "client_update"
+          ? { kind, ownerId: id, contact }
+          : { kind, contact };
+      break;
+    }
     case "intake": {
       const name = value("name");
       const owner = value("owner");
