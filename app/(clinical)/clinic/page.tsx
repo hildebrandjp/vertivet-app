@@ -20,6 +20,8 @@ import { PracticeShell, readPracticeView } from "./_components/PracticeShell";
 import { QueuePanel } from "./_components/QueuePanel";
 import { QueueSchedule } from "./_components/QueueSchedule";
 import { getPractice } from "./_lib/data";
+import { readOrderQuery } from "./_lib/diagnostics";
+import { getOrders } from "./_lib/diagnostics-data";
 import { readRegistryQuery } from "./_lib/registry";
 import { getRegistry } from "./_lib/registry-data";
 import { readScheduleQuery } from "./_lib/schedule";
@@ -37,9 +39,11 @@ async function Practice({
   const view = readPracticeView(params.view);
   const inRegistry = view === "patients" || view === "owners";
   const filters = readRegistryQuery(params);
-  const [{ clinician, overview, demo }, registry] = await Promise.all([
+  const orderFilters = readOrderQuery(params);
+  const [{ clinician, overview, demo }, registry, orders] = await Promise.all([
     getPractice(),
     inRegistry ? getRegistry(filters) : null,
+    view === "diagnostics" ? getOrders(orderFilters) : null,
   ]);
   const scheduleQuery = readScheduleQuery(params, overview.date);
   const schedule = view === "queue" ? await getSchedule(scheduleQuery) : null;
@@ -67,7 +71,7 @@ async function Practice({
           Demo workspace with sample records. Use fictional patient information.
         </Alert>
       )}
-      {!inRegistry && !schedule && (
+      {!inRegistry && !schedule && !orders && (
         <SectionHeader
           as="h1"
           title={titles[view]}
@@ -125,7 +129,13 @@ async function Practice({
         ) : (
           <PatientRegistry filters={filters} registry={registry} />
         ))}
-      {view === "diagnostics" && <Diagnostics overview={overview} />}
+      {orders && (
+        <Diagnostics
+          data={orders}
+          filters={orderFilters}
+          canManage={clinician.role === "veterinarian"}
+        />
+      )}
       {view === "settings" && (
         <Card padding="lg">
           <DescriptionList
