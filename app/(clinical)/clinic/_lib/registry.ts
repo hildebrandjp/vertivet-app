@@ -1,5 +1,6 @@
 import { ROUTES } from "@/app/shared/config/routes";
 import {
+  type ClientRecord,
   type ClinicalEntry,
   type ClinicalPatient,
   type ClinicalSpecies,
@@ -22,14 +23,18 @@ export interface RegistryQuery {
   species?: ClinicalSpecies;
   query: string;
   page: number;
+  recent?: boolean;
 }
 
-export interface RegistryOwner {
-  id: string;
-  name: string;
-  email?: string;
-  phone?: string;
+export interface RegistryOwner extends ClientRecord {
   pets: string[];
+}
+
+export interface ClientSummary {
+  registered: number;
+  associatedPets: number;
+  active?: number;
+  recent?: number;
 }
 
 export interface RegistryPage {
@@ -38,6 +43,8 @@ export interface RegistryPage {
   entries: ClinicalEntry[];
   counts: Record<RegistryQuery["tab"], number>;
   total: number;
+  clientSummary?: ClientSummary;
+  recentCount?: number;
   page: number;
 }
 
@@ -55,18 +62,26 @@ export function readRegistryQuery(
         : params.tab === "due"
           ? "due"
           : "all",
+    ...(params.view === "owners" && params.recent === "1" && { recent: true }),
     species: isClinicalSpecies(params.species) ? params.species : undefined,
     query: typeof params.q === "string" ? params.q.trim().slice(0, 100) : "",
     page: Number.isSafeInteger(page) && page > 0 ? page : 1,
   };
 }
 
-export function registryHref({ tab, species, query, page }: RegistryQuery) {
+export function registryHref({
+  tab,
+  species,
+  query,
+  page,
+  recent,
+}: RegistryQuery) {
   const params = new URLSearchParams({
     view: tab === "owners" ? "owners" : "patients",
   });
+  if (tab === "owners" && recent) params.set("recent", "1");
   if (tab === "due") params.set("tab", "due");
-  if (species) params.set("species", species);
+  if (species && tab !== "owners") params.set("species", species);
   if (query) params.set("q", query);
   if (page > 1) params.set("page", String(page));
   return `${ROUTES.clinicalDashboard}?${params}`;
@@ -77,21 +92,32 @@ export function normalizeMicrochip(value: string): string {
   return value.replace(/[\s-]/g, "");
 }
 
+export function registryOwnerId(patient: ClinicalPatient): string {
+  return (
+    patient.ownerId ??
+    JSON.stringify([
+      patient.owner.toLowerCase(),
+      patient.ownerEmail?.toLowerCase(),
+      patient.ownerPhone,
+    ])
+  );
+}
+
 export function groupRegistryOwners(
   patients: ClinicalPatient[],
+  clients: ClientRecord[] = [],
 ): RegistryOwner[] {
-  const owners = new Map<string, RegistryOwner>();
+  const owners = new Map<string, RegistryOwner>(
+    clients.map((owner) => [owner.id, { ...owner, pets: [] }]),
+  );
+  const clientIds = new Set(clients.map(({ id }) => id));
   for (const patient of patients) {
-    const id =
-      patient.ownerId ??
-      JSON.stringify([
-        patient.owner.toLowerCase(),
-        patient.ownerEmail?.toLowerCase(),
-        patient.ownerPhone,
-      ]);
+    const id = registryOwnerId(patient);
     const owner = owners.get(id) ?? { id, name: patient.owner, pets: [] };
-    owner.email ||= patient.ownerEmail;
-    owner.phone ||= patient.ownerPhone;
+    if (!clientIds.has(id)) {
+      owner.email ||= patient.ownerEmail;
+      owner.phone ||= patient.ownerPhone;
+    }
     owner.pets.push(patient.name);
     owners.set(id, owner);
   }

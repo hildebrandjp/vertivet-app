@@ -11,7 +11,7 @@ import {
 import styles from "../registry.module.css";
 import { ClinicalAction } from "./ClinicalAction";
 import { RegistryFilters } from "./RegistryFilters";
-import { OwnersTable, PatientsTable } from "./RegistryTables";
+import { PatientsTable } from "./RegistryTables";
 
 export function PatientRegistry({
   filters,
@@ -20,12 +20,11 @@ export function PatientRegistry({
   filters: RegistryQuery;
   registry: RegistryPage;
 }) {
-  const { counts, total, page, entries, patients, owners } = registry;
-  const showOwners = filters.tab === "owners";
+  const { counts, total, page, entries, patients } = registry;
   const pageCount = Math.ceil(total / REGISTRY_PAGE_SIZE);
-  const count = showOwners ? owners.length : patients.length;
+  const count = patients.length;
   const offset = (page - 1) * REGISTRY_PAGE_SIZE;
-  const entity = showOwners ? "pet owners" : "registered pet patients";
+  const entity = "registered pet patients";
 
   return (
     <>
@@ -53,11 +52,7 @@ export function PatientRegistry({
       />
       <RegistryFilters filters={filters} counts={counts} />
       <div className={styles.panel}>
-        {showOwners ? (
-          <OwnersTable owners={owners} />
-        ) : (
-          <PatientsTable patients={patients} entries={entries} />
-        )}
+        <PatientsTable patients={patients} entries={entries} />
         <footer className={styles.footer}>
           <span>
             {count > 0

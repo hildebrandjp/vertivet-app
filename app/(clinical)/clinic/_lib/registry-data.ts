@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { ROUTES } from "@/app/shared/config/routes";
 import { apiRequest } from "@/app/shared/server/api-client";
 import { requireClinician } from "@/app/shared/server/clinical-session";
-import { getDemoOverview } from "./demo";
+import { selectDemoClients } from "./client-directory";
+import { getDemoPractice } from "./demo";
 import {
   groupRegistryOwners,
   REGISTRY_PAGE_SIZE,
@@ -15,14 +16,21 @@ import {
 
 export async function getRegistry(query: RegistryQuery): Promise<RegistryPage> {
   const session = await requireClinician();
-  if (session.demo) return selectDemoRegistry(await getDemoOverview(), query);
+  if (session.demo) {
+    const { overview, clients } = await getDemoPractice();
+    return query.tab === "owners"
+      ? selectDemoClients(overview, clients, query)
+      : selectDemoRegistry(overview, query);
+  }
   const params = new URLSearchParams({
     tab: query.tab,
     page: String(query.page),
     pageSize: String(REGISTRY_PAGE_SIZE),
     q: query.query,
   });
-  if (query.species) params.set("species", query.species);
+  if (query.species && query.tab !== "owners")
+    params.set("species", query.species);
+  if (query.tab === "owners" && query.recent) params.set("recent", "1");
   const result = await apiRequest<RegistryPage>(
     `/clinical/registry?${params}`,
     { token: session.token },
@@ -35,8 +43,10 @@ export async function getRegistry(query: RegistryQuery): Promise<RegistryPage> {
 
 export async function getClientDirectory(): Promise<RegistryOwner[] | null> {
   const session = await requireClinician();
-  if (session.demo)
-    return groupRegistryOwners((await getDemoOverview()).patients);
+  if (session.demo) {
+    const { overview, clients } = await getDemoPractice();
+    return groupRegistryOwners(overview.patients, clients);
+  }
   const result = await apiRequest<RegistryOwner[]>(
     "/clinical/registry/clients",
     { token: session.token },

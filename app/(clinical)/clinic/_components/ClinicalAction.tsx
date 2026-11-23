@@ -20,6 +20,8 @@ const LABELS = {
   intake: "New Patient Intake",
   call: "Call Patient",
   microchip: "Update Microchip",
+  client_intake: "New Client Intake",
+  client_update: "Edit Client Contact",
 };
 
 const CHIP_FIELD = {
@@ -38,6 +40,13 @@ const INTAKE_FIELDS = [
   CHIP_FIELD,
 ];
 
+const CLIENT_FIELDS = [
+  { name: "name", label: "Client Name", maxLength: 100, required: true },
+  { name: "email", label: "Email Address", maxLength: 254, type: "email" },
+  { name: "phone", label: "Phone Number", maxLength: 40, type: "tel" },
+  { name: "address", label: "Address", maxLength: 200 },
+];
+
 const INITIAL: ClinicalResult = { status: "idle" };
 
 function ActionDialog({
@@ -45,12 +54,14 @@ function ActionDialog({
   id,
   patient,
   currentChip,
+  initialValues,
   close,
 }: {
   kind: Kind;
   id: string;
   patient?: string;
   currentChip?: string;
+  initialValues?: Record<string, string>;
   close: () => void;
 }) {
   const formId = useId();
@@ -60,7 +71,16 @@ function ActionDialog({
   );
   const [values, setValues] = useState<Record<string, string>>({
     chip: currentChip ?? "",
+    ...initialValues,
   });
+  const fields =
+    kind === "intake"
+      ? INTAKE_FIELDS
+      : kind === "microchip"
+        ? [{ ...CHIP_FIELD, required: true }]
+        : kind === "client_intake" || kind === "client_update"
+          ? CLIENT_FIELDS
+          : null;
   const saved = state.status === "saved";
   const edit = (name: string, value: string) =>
     setValues((current) => ({ ...current, [name]: value }));
@@ -119,11 +139,8 @@ function ActionDialog({
               </select>
             </Field>
           )}
-          {kind === "intake" || kind === "microchip" ? (
-            (kind === "intake"
-              ? INTAKE_FIELDS
-              : [{ ...CHIP_FIELD, required: true }]
-            ).map(({ name, label, required, ...input }) => (
+          {fields ? (
+            fields.map(({ name, label, required, ...input }) => (
               <Field key={name} label={label} required={required}>
                 <TextInput
                   {...input}
@@ -157,6 +174,7 @@ export function ClinicalAction({
   id = "",
   patient,
   currentChip,
+  initialValues,
   label,
   variant = "secondary",
   size,
@@ -166,6 +184,7 @@ export function ClinicalAction({
   id?: string;
   patient?: string;
   currentChip?: string;
+  initialValues?: Record<string, string>;
   label: string;
   variant?: ButtonVariant;
   size?: "sm" | "md";
@@ -193,6 +212,7 @@ export function ClinicalAction({
           id={id}
           patient={patient}
           currentChip={currentChip}
+          initialValues={initialValues}
           close={() => setOpen(false)}
         />
       )}

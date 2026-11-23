@@ -89,3 +89,13 @@
 .empty {
   text-align: center;
 }
+
+.clientContact {
+  display: grid;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.clientContact a {
+  color: inherit;
+}

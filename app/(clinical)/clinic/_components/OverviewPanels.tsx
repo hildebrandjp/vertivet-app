@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Alert } from "@/app/shared/ui/Alert";
 import { Badge } from "@/app/shared/ui/Badge";
 import { Card } from "@/app/shared/ui/Card";
@@ -45,12 +46,22 @@ export function SummaryCards({
   ];
 
   return (
+    <PracticeStats
+      cards={cards.map(({ Icon, ...card }) => ({ ...card, icon: <Icon /> }))}
+    />
+  );
+}
+
+export function PracticeStats({
+  cards,
+}: {
+  cards: { label: string; value: string; detail?: string; icon: ReactNode }[];
+}) {
+  return (
     <div className={styles.summary}>
-      {cards.map(({ label, value, detail, Icon }) => (
+      {cards.map(({ label, value, detail, icon }) => (
         <Card key={label} className={styles.stat}>
-          <span className={styles.statIcon}>
-            <Icon />
-          </span>
+          <span className={styles.statIcon}>{icon}</span>
           <div>
             <Text variant="supporting" tone="muted">
               {label}
@@ -60,7 +71,7 @@ export function SummaryCards({
                 {value}
               </Heading>
               {detail && (
-                <Text variant="small" tone="success">
+                <Text variant="small" tone="muted">
                   {detail}
                 </Text>
               )}

@@ -6,6 +6,7 @@ import { Card } from "@/app/shared/ui/Card";
 import { DescriptionList } from "@/app/shared/ui/DescriptionList";
 import { SectionHeader } from "@/app/shared/ui/SectionHeader";
 import { Skeleton } from "@/app/shared/ui/Skeleton";
+import { ClientDirectory } from "./_components/ClientDirectory";
 import { ClinicalAction } from "./_components/ClinicalAction";
 import { Diagnostics } from "./_components/Diagnostics";
 import {
@@ -102,7 +103,16 @@ async function Practice({
         </>
       )}
       {view === "queue" && <QueuePanel overview={overview} />}
-      {registry && <PatientRegistry filters={filters} registry={registry} />}
+      {registry &&
+        (view === "owners" ? (
+          <ClientDirectory
+            filters={filters}
+            registry={registry}
+            practiceCounts={overview.counts}
+          />
+        ) : (
+          <PatientRegistry filters={filters} registry={registry} />
+        ))}
       {view === "diagnostics" && <Diagnostics overview={overview} />}
       {view === "settings" && (
         <Card padding="lg">
