@@ -19,6 +19,12 @@ import {
   type practice,
 } from "../application/practice";
 
+const OPERATION_LIMITS = {
+  tokens: 500,
+  fields: 40,
+  mutationSelections: 1,
+} as const;
+
 const schema = buildSchema(`
   enum Species { ${SPECIES.join(" ")} }
   type Member { name: String!, clinic: String! }
@@ -54,7 +60,7 @@ export async function runPracticeGraphQL(
 ) {
   let document: ReturnType<typeof parse>;
   try {
-    document = parse(input.query, { maxTokens: 500 });
+    document = parse(input.query, { maxTokens: OPERATION_LIMITS.tokens });
   } catch (error) {
     if (error instanceof GraphQLError)
       return { result: { errors: [error.toJSON()] } };
@@ -67,7 +73,7 @@ export async function runPracticeGraphQL(
     },
   });
   if (
-    fields > 40 ||
+    fields > OPERATION_LIMITS.fields ||
     document.definitions.some((node) => node.kind === "FragmentDefinition")
   ) {
     return {
@@ -85,7 +91,8 @@ export async function runPracticeGraphQL(
   const operation = getOperationAST(document, input.operationName);
   if (
     operation?.operation === "mutation" &&
-    operation.selectionSet.selections.length !== 1
+    operation.selectionSet.selections.length !==
+      OPERATION_LIMITS.mutationSelections
   ) {
     return {
       result: { errors: [{ message: "Send one mutation field per request." }] },

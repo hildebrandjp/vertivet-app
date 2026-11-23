@@ -1,13 +1,16 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { WORKSPACE_PAGE_SIZE } from "../../../shared/practice/contracts";
+import {
+  MEMBERSHIP_ROLE,
+  WORKSPACE_PAGE_SIZE,
+} from "../../../shared/practice/contracts";
 import { hashPassword, practice } from "../application/practice";
 import { runPracticeGraphQL } from "../graphql/schema";
-import { migrate, openDatabase } from "./database";
+import { IN_MEMORY_DATABASE, migrate, openDatabase } from "./database";
 import { knexPracticeStore } from "./store";
 
 test("SQLite and GraphQL isolate clinic data and revoke sessions", async () => {
-  const db = openDatabase(":memory:");
+  const db = openDatabase(IN_MEMORY_DATABASE);
   try {
     await migrate(db);
     await migrate(db);
@@ -23,8 +26,8 @@ test("SQLite and GraphQL isolate clinic data and revoke sessions", async () => {
       password_hash: await hashPassword(password),
     });
     await db("memberships").insert([
-      { clinic_id: "a", user_id: "u", role: "staff" },
-      { clinic_id: "b", user_id: "u", role: "staff" },
+      { clinic_id: "a", user_id: "u", role: MEMBERSHIP_ROLE.staff },
+      { clinic_id: "b", user_id: "u", role: MEMBERSHIP_ROLE.staff },
     ]);
     const service = practice(knexPracticeStore(db));
     const alpha = await service.signIn("alpha", "staff@example.test", password);
@@ -103,7 +106,7 @@ test("SQLite and GraphQL isolate clinic data and revoke sessions", async () => {
     assert.equal(first.patients.hasMore, true);
     assert.deepEqual(
       second.patients.items.map(({ name }) => name),
-      ["Patient 19"],
+      [`Patient ${String(WORKSPACE_PAGE_SIZE - 1).padStart(2, "0")}`],
     );
     assert.equal(second.patients.hasMore, false);
     const anonymous = await runPracticeGraphQL(service, {
