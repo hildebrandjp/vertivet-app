@@ -177,3 +177,17 @@
     align-items: center;
   }
 }
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+@media (max-width: 700px) {
+  .topbar a.search {
+    order: 0;
+    width: auto;
+    margin-inline-start: auto;
+  }
+}

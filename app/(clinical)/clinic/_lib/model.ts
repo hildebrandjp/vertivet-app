@@ -1,10 +1,28 @@
+export const SPECIES = ["dog", "cat", "rabbit", "bird", "other"] as const;
+export type ClinicalSpecies = (typeof SPECIES)[number];
+
+export function isClinicalSpecies(value: unknown): value is ClinicalSpecies {
+  return SPECIES.some((species) => species === value);
+}
+
+export interface VaccinationStatus {
+  status: "current" | "due" | "overdue";
+  label: string;
+}
+
 export interface ClinicalPatient {
   id: string;
   name: string;
   breed: string;
   age?: string;
   owner: string;
+  ownerId?: string;
+  ownerEmail?: string;
+  ownerPhone?: string;
+  species?: ClinicalSpecies;
   chip?: string;
+  chipVerified?: boolean;
+  vaccination?: VaccinationStatus;
   vitals?: { weightKg: number; temperatureF: number; heartRate: number };
 }
 
@@ -49,7 +67,17 @@ export interface PracticeOverview {
 }
 
 export type ClinicalChange =
-  | { kind: "intake"; name: string; breed: string; owner: string; chip: string }
+  | {
+      kind: "intake";
+      name: string;
+      breed: string;
+      owner: string;
+      chip: string;
+      species?: ClinicalSpecies;
+      ownerEmail?: string;
+      ownerPhone?: string;
+    }
+  | { kind: "microchip"; patientId: string; chip: string }
   | { kind: "call"; visitId: string }
   | { kind: ClinicalEntry["kind"]; patientId: string; text: string };
 

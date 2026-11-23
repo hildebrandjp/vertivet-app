@@ -1,0 +1,91 @@
+.toolbar,
+.tabs,
+.filters,
+.actions,
+.footer,
+.identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.toolbar,
+.footer {
+  justify-content: space-between;
+}
+
+.toolbar,
+.tabs,
+.filters,
+.actions,
+.footer,
+.contact {
+  flex-wrap: wrap;
+}
+
+.tab[aria-current="page"] {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border-color: var(--color-border-strong);
+}
+
+.species {
+  width: auto;
+}
+
+.panel {
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+
+.tableScroll {
+  border: 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.table {
+  min-width: 55rem;
+}
+
+.header,
+.footer {
+  background: var(--color-surface-muted);
+}
+
+.header th {
+  text-transform: uppercase;
+  font-weight: var(--font-weight-semibold);
+}
+
+.contact {
+  display: flex;
+  gap: var(--space-1) var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.contact a,
+.contactCell a {
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+
+.contact a:hover,
+.contactCell a:hover {
+  color: var(--color-primary);
+}
+
+.footer,
+.empty {
+  color: var(--color-text-muted);
+  padding: var(--space-3);
+}
+
+.footer {
+  border-top: 1px solid var(--color-border);
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+
+.empty {
+  text-align: center;
+}

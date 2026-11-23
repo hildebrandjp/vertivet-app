@@ -7,19 +7,19 @@ import { DescriptionList } from "@/app/shared/ui/DescriptionList";
 import { SectionHeader } from "@/app/shared/ui/SectionHeader";
 import { Skeleton } from "@/app/shared/ui/Skeleton";
 import { ClinicalAction } from "./_components/ClinicalAction";
+import { Diagnostics } from "./_components/Diagnostics";
 import {
   AlertsPanel,
   SummaryCards,
   VitalsPanel,
 } from "./_components/OverviewPanels";
 import { PatientChart } from "./_components/PatientChart";
-import {
-  Diagnostics,
-  PracticeDirectory,
-} from "./_components/PracticeDirectory";
+import { PatientRegistry } from "./_components/PatientRegistry";
 import { PracticeShell, readPracticeView } from "./_components/PracticeShell";
 import { QueuePanel } from "./_components/QueuePanel";
 import { getPractice } from "./_lib/data";
+import { readRegistryQuery } from "./_lib/registry";
+import { getRegistry } from "./_lib/registry-data";
 import styles from "./clinic.module.css";
 
 export const metadata: Metadata = {
@@ -29,13 +29,14 @@ export const metadata: Metadata = {
 async function Practice({
   searchParams,
 }: Pick<PageProps<"/clinic">, "searchParams">) {
-  const [{ clinician, overview, demo }, params] = await Promise.all([
-    getPractice(),
-    searchParams,
-  ]);
+  const params = await searchParams;
   const view = readPracticeView(params.view);
-  const query =
-    typeof params.q === "string" ? params.q.trim().slice(0, 100) : "";
+  const inRegistry = view === "patients" || view === "owners";
+  const filters = readRegistryQuery(params);
+  const [{ clinician, overview, demo }, registry] = await Promise.all([
+    getPractice(),
+    inRegistry ? getRegistry(filters) : null,
+  ]);
   const inExam = overview.queue.filter(({ status }) => status === "in_exam");
   const activePatient = overview.patients.find(
     ({ id }) => id === inExam[0]?.patientId,
@@ -53,39 +54,41 @@ async function Practice({
       clinician={clinician}
       overview={overview}
       view={view}
-      query={query}
+      query={filters.query}
     >
       {demo && (
         <Alert variant="callout" tone="info">
           Demo workspace with sample records. Use fictional patient information.
         </Alert>
       )}
-      <SectionHeader
-        as="h1"
-        title={titles[view]}
-        description={
-          view === "overview"
-            ? `${formatFullDay(overview.date)} · ${overview.counts.booked} consultations booked · ${overview.room}`
-            : undefined
-        }
-        actions={
-          view === "overview" || view === "patients" ? (
-            <div className={styles.inline}>
-              <ClinicalAction kind="intake" label="+ New Patient Intake" />
-              {view === "overview" && activePatient && (
-                <PatientChart
-                  patient={activePatient}
-                  entries={overview.entries.filter(
-                    ({ patientId }) => patientId === activePatient.id,
-                  )}
-                  label={`Resume ${activePatient.name}’s Consult →`}
-                  primary
-                />
-              )}
-            </div>
-          ) : undefined
-        }
-      />
+      {!inRegistry && (
+        <SectionHeader
+          as="h1"
+          title={titles[view]}
+          description={
+            view === "overview"
+              ? `${formatFullDay(overview.date)} · ${overview.counts.booked} consultations booked · ${overview.room}`
+              : undefined
+          }
+          actions={
+            view === "overview" ? (
+              <div className={styles.inline}>
+                <ClinicalAction kind="intake" label="+ New Patient Intake" />
+                {activePatient && (
+                  <PatientChart
+                    patient={activePatient}
+                    entries={overview.entries.filter(
+                      ({ patientId }) => patientId === activePatient.id,
+                    )}
+                    label={`Resume ${activePatient.name}’s Consult →`}
+                    primary
+                  />
+                )}
+              </div>
+            ) : undefined
+          }
+        />
+      )}
       {view === "overview" && (
         <>
           <SummaryCards counts={overview.counts} inExam={inExam.length} />
@@ -99,13 +102,7 @@ async function Practice({
         </>
       )}
       {view === "queue" && <QueuePanel overview={overview} />}
-      {(view === "patients" || view === "owners") && (
-        <PracticeDirectory
-          overview={overview}
-          query={query}
-          ownersOnly={view === "owners"}
-        />
-      )}
+      {registry && <PatientRegistry filters={filters} registry={registry} />}
       {view === "diagnostics" && <Diagnostics overview={overview} />}
       {view === "settings" && (
         <Card padding="lg">

@@ -29,6 +29,11 @@ export function PatientChart({
       <Button
         size="sm"
         variant={primary ? "primary" : "secondary"}
+        aria-label={
+          label === "Medical Chart"
+            ? `Medical chart for ${patient.name}`
+            : undefined
+        }
         onClick={() => setOpen(true)}
       >
         {label}

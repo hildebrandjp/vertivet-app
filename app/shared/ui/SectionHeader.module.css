@@ -21,6 +21,7 @@
 .actions {
   display: flex;
   flex: none;
+  max-width: 100%;
   align-items: center;
   gap: var(--space-2);
 }
