@@ -11,42 +11,15 @@ import {
 import { todayInTimeZone } from "@/app/shared/utils/date";
 import {
   createAppointment,
-  fetchAvailableSlots,
   fetchPetsForAction,
   fetchServicesForAction,
 } from "../../_lib/data/dal";
-import type { TimeSlot } from "../../_lib/data/types";
 import {
   BOOKING_ERRORS,
   BOOKING_FIELDS,
   type BookingState,
-  DATE_PATTERN,
   validateBooking,
 } from "./_lib/booking";
-
-export type SlotsResult =
-  | { ok: true; slots: TimeSlot[] }
-  | { ok: false; message: string };
-
-/** Available times for one service on one clinic-local day. */
-export async function loadSlots(
-  serviceId: string,
-  date: string,
-): Promise<SlotsResult> {
-  if (!serviceId || !DATE_PATTERN.test(date)) {
-    return { ok: false, message: "Pick a service and a valid date." };
-  }
-  try {
-    return { ok: true, slots: await fetchAvailableSlots(serviceId, date) };
-  } catch (error) {
-    unstable_rethrow(error); // keep redirects (expired session) working
-    console.error("[booking] Failed to load slots.", error);
-    return {
-      ok: false,
-      message: "We couldn't load available times. Please try again.",
-    };
-  }
-}
 
 /**
  * Confirms a booking. Re-validates everything the client checked, and that

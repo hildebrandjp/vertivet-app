@@ -13,7 +13,7 @@ import {
   formatShortDay,
   formatSlotTime,
 } from "../../../_lib/format";
-import type { SlotsView } from "../_lib/useSlots";
+import type { SlotsView } from "../../_lib/useSlots";
 import styles from "./schedule.module.css";
 
 interface SlotsPanelProps {

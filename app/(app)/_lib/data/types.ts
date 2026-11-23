@@ -55,10 +55,20 @@ export interface Appointment {
   id: string;
   petId: string;
   service: string;
+  serviceId?: string;
+  description?: string;
+  durationMinutes?: number;
+  provider?: string | null;
+  location?: string | null;
   /** ISO date-time with offset, e.g. 2026-11-06T10:30:00Z. */
   startsAt: string;
   status: AppointmentStatus;
 }
+
+export type AppointmentChange =
+  | { kind: "confirm" }
+  | { kind: "cancel" }
+  | { kind: "reschedule"; date: string; time: string };
 
 export interface NavCounts {
   pets: number;
