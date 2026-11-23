@@ -17,6 +17,8 @@ import {
   demoSlots,
 } from "./demo-data";
 import { addDemoPet, getDemoPets } from "./demo-pets";
+import { getDemoSettings, saveDemoSettings } from "./demo-settings";
+import type { OwnerPreferences, OwnerSettings } from "./settings-types";
 import type {
   AppNotification,
   Appointment,
@@ -68,7 +70,72 @@ async function load<T>(
   throw new Error(`Could not load ${path}`);
 }
 
-export const getCurrentUser = cache(() => load<User>("/me", DEMO_USER));
+export const getCurrentUser = cache(async (): Promise<User> => {
+  const session = await verifySession();
+  if (!("demo" in session)) return load<User>("/me", DEMO_USER, session);
+  const { fullName, email, avatarUrl } = await getDemoSettings();
+  const [firstName, ...rest] = fullName.split(/\s+/);
+  return {
+    ...DEMO_USER,
+    firstName,
+    lastName: rest.join(" "),
+    email,
+    avatarUrl,
+  };
+});
+
+async function loadOwnerSettings(
+  session: Extract<Session, { token: string }>,
+  profile = load<User>("/me", DEMO_USER, session),
+): Promise<OwnerSettings> {
+  const [user, preferences] = await Promise.all([
+    profile,
+    load<Partial<OwnerSettings>>("/me/settings", {}, session),
+  ]);
+  return {
+    fullName: [user.firstName, user.lastName].filter(Boolean).join(" "),
+    email: user.email,
+    phone: "",
+    clinicBranch: "",
+    emergencyPhone: "",
+    visitReminders: false,
+    vaccinationAlerts: false,
+    avatarUrl: user.avatarUrl,
+    ...preferences,
+  };
+}
+
+export const getOwnerSettings = cache(async () => {
+  const session = await verifySession();
+  return "demo" in session
+    ? { settings: await getDemoSettings(), demo: true }
+    : {
+        settings: await loadOwnerSettings(session, getCurrentUser()),
+        demo: false,
+      };
+});
+
+export async function updateOwnerSettings(
+  input: OwnerPreferences,
+  photo?: File,
+): Promise<OwnerSettings | null> {
+  const session = await resolveSession();
+  if ("demo" in session) return saveDemoSettings(input, photo);
+  let body: OwnerPreferences | FormData = input;
+  if (photo) {
+    body = new FormData();
+    body.set("settings", JSON.stringify(input));
+    body.set("photo", photo);
+  }
+  const result = await apiRequest<OwnerSettings>("/me/settings", {
+    method: "PATCH",
+    body,
+    token: session.token,
+  });
+  if (result.ok) return result.data ?? loadOwnerSettings(session);
+  if (result.failure === "unauthorized") redirect(ROUTES.login);
+  return null;
+}
 
 async function loadPets(session: Session): Promise<Pet[]> {
   return "demo" in session ? getDemoPets() : load<Pet[]>("/pets", [], session);

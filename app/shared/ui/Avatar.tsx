@@ -15,6 +15,8 @@ export interface AvatarProps {
   shape?: "circle" | "rounded";
   /** Decorative when the name is already printed next to it. */
   decorative?: boolean;
+  /** Serve trusted uploaded images directly when their host varies by account. */
+  unoptimized?: boolean;
   className?: string;
 }
 
@@ -25,6 +27,7 @@ export function Avatar({
   size = "md",
   shape = "circle",
   decorative = false,
+  unoptimized,
   className,
 }: AvatarProps) {
   const pixels = PIXELS[size];
@@ -39,6 +42,7 @@ export function Avatar({
       <span {...common}>
         <Image
           src={src}
+          unoptimized={unoptimized}
           alt={decorative ? "" : name}
           width={pixels}
           height={pixels}

@@ -43,14 +43,16 @@ export async function apiRequest<T = unknown>(
   }
 
   const headers: Record<string, string> = { Accept: "application/json" };
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  const multipart = body instanceof FormData;
+  if (body !== undefined && !multipart)
+    headers["Content-Type"] = "application/json";
   if (token) headers.Authorization = `Bearer ${token}`;
 
   try {
     const response = await fetch(new URL(path, baseUrl), {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: multipart || body === undefined ? body : JSON.stringify(body),
       cache: "no-store",
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });

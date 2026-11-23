@@ -54,6 +54,10 @@ const BREADCRUMBS: Record<string, BreadcrumbItem[]> = {
     { label: "Dashboard", href: ROUTES.dashboard },
     { label: "Appointments" },
   ],
+  [ROUTES.settings]: [
+    { label: "Dashboard", href: ROUTES.dashboard },
+    { label: "Clinic Settings" },
+  ],
   [ROUTES.newAppointment]: [
     { label: "Appointments", href: ROUTES.appointments },
     { label: "Book an Appointment" },
