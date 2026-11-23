@@ -9,6 +9,7 @@ import { Card } from "@/app/shared/ui/Card";
 import { SectionHeader } from "@/app/shared/ui/SectionHeader";
 import { Heading, Text } from "@/app/shared/ui/Typography";
 import { type PracticeOverview, QUEUE_LABELS } from "../_lib/model";
+import { canCallVisit, orderVisits } from "../_lib/schedule";
 import styles from "../clinic.module.css";
 import { ClinicalAction } from "./ClinicalAction";
 import { PatientChart } from "./PatientChart";
@@ -21,20 +22,18 @@ const TONES = {
   called: "primary",
 } as const;
 
-function waiting(status: PracticeOverview["queue"][number]["status"]) {
-  return status === "checked_in" || status === "waiting";
-}
-
 export function QueuePanel({ overview }: { overview: PracticeOverview }) {
   const [waitingOnly, setWaitingOnly] = useState(false);
   const { date, entries, patients, queue, room } = overview;
   const patientsById = new Map(
     patients.map((patient) => [patient.id, patient]),
   );
-  const waitingCount = queue.filter((visit) => waiting(visit.status)).length;
-  const visits = (
-    waitingOnly ? queue.filter((visit) => waiting(visit.status)) : queue
-  ).toSorted((a, b) => a.startsAt.localeCompare(b.startsAt));
+  const waitingCount = queue.filter((visit) =>
+    canCallVisit(visit.status),
+  ).length;
+  const visits = orderVisits(
+    waitingOnly ? queue.filter(({ status }) => canCallVisit(status)) : queue,
+  );
 
   return (
     <Card padding="lg" className={styles.panel}>
@@ -114,7 +113,7 @@ export function QueuePanel({ overview }: { overview: PracticeOverview }) {
                     {formatSlotTime(visit.startsAt)}
                   </Text>
                 </time>
-                {waiting(visit.status) && patient ? (
+                {canCallVisit(visit.status) && patient ? (
                   <ClinicalAction
                     kind="call"
                     id={visit.id}

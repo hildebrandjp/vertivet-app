@@ -110,6 +110,31 @@ export async function saveClinicalChange(
       change = { kind, patientId: id, chip };
       break;
     }
+    case "walk_in": {
+      const patientId = value("patientId");
+      const name = value("name");
+      const owner = value("owner");
+      const reason = value("reason");
+      if (
+        !reason ||
+        reason.length > 160 ||
+        patientId.length > 128 ||
+        (!patientId &&
+          (!name || !owner || name.length > 100 || owner.length > 100))
+      ) {
+        return {
+          status: "error",
+          message:
+            "Choose a registered patient or enter a patient and owner name, then enter a visit reason.",
+        };
+      }
+      change = {
+        kind,
+        reason,
+        patient: patientId ? { id: patientId } : { name, owner },
+      };
+      break;
+    }
     case "call":
       if (!id) return { status: "error", message: "Select a visit." };
       change = { kind, visitId: id };

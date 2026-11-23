@@ -8,7 +8,12 @@ import { Dialog } from "@/app/shared/ui/Dialog";
 import { Field } from "@/app/shared/ui/Field";
 import { TextArea } from "@/app/shared/ui/TextArea";
 import { TextInput } from "@/app/shared/ui/TextInput";
-import { type ClinicalChange, ENTRY_LABELS, SPECIES } from "../_lib/model";
+import {
+  type ClinicalChange,
+  type ClinicalPatient,
+  ENTRY_LABELS,
+  SPECIES,
+} from "../_lib/model";
 import { SPECIES_LABELS } from "../_lib/registry";
 import { type ClinicalResult, saveClinicalChange } from "../actions";
 import styles from "../clinic.module.css";
@@ -19,6 +24,7 @@ const LABELS = {
   ...ENTRY_LABELS,
   intake: "New Patient Intake",
   call: "Call Patient",
+  walk_in: "Add Walk-In",
   microchip: "Update Microchip",
   client_intake: "New Client Intake",
   client_update: "Edit Client Contact",
@@ -55,6 +61,7 @@ function ActionDialog({
   patient,
   currentChip,
   initialValues,
+  walkInPatients,
   close,
 }: {
   kind: Kind;
@@ -62,6 +69,7 @@ function ActionDialog({
   patient?: string;
   currentChip?: string;
   initialValues?: Record<string, string>;
+  walkInPatients?: Pick<ClinicalPatient, "id" | "name" | "owner">[];
   close: () => void;
 }) {
   const formId = useId();
@@ -139,6 +147,57 @@ function ActionDialog({
               </select>
             </Field>
           )}
+          {kind === "walk_in" && (
+            <>
+              {Boolean(walkInPatients?.length) && (
+                <Field id={`${formId}-patient`} label="Registered Patient">
+                  <select
+                    id={`${formId}-patient`}
+                    name="patientId"
+                    className={controlStyles.control}
+                    data-size="md"
+                    value={values.patientId ?? ""}
+                    onChange={(event) => edit("patientId", event.target.value)}
+                  >
+                    <option value="">Enter a new patient</option>
+                    {walkInPatients?.map(({ id, name, owner }) => (
+                      <option key={id} value={id}>
+                        {name} · {owner}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              )}
+              {!values.patientId && (
+                <>
+                  <Field label="Patient Name" required>
+                    <TextInput
+                      name="name"
+                      maxLength={100}
+                      value={values.name ?? ""}
+                      onChange={(event) => edit("name", event.target.value)}
+                    />
+                  </Field>
+                  <Field label="Owner Name" required>
+                    <TextInput
+                      name="owner"
+                      maxLength={100}
+                      value={values.owner ?? ""}
+                      onChange={(event) => edit("owner", event.target.value)}
+                    />
+                  </Field>
+                </>
+              )}
+              <Field label="Visit Reason" required>
+                <TextInput
+                  name="reason"
+                  maxLength={160}
+                  value={values.reason ?? ""}
+                  onChange={(event) => edit("reason", event.target.value)}
+                />
+              </Field>
+            </>
+          )}
           {fields ? (
             fields.map(({ name, label, required, ...input }) => (
               <Field key={name} label={label} required={required}>
@@ -150,7 +209,7 @@ function ActionDialog({
                 />
               </Field>
             ))
-          ) : kind === "call" ? (
+          ) : kind === "walk_in" ? null : kind === "call" ? (
             <p>Mark this patient as called in from the waiting queue.</p>
           ) : (
             <Field label={LABELS[kind]} required>
@@ -175,6 +234,7 @@ export function ClinicalAction({
   patient,
   currentChip,
   initialValues,
+  walkInPatients,
   label,
   variant = "secondary",
   size,
@@ -185,6 +245,7 @@ export function ClinicalAction({
   patient?: string;
   currentChip?: string;
   initialValues?: Record<string, string>;
+  walkInPatients?: Pick<ClinicalPatient, "id" | "name" | "owner">[];
   label: string;
   variant?: ButtonVariant;
   size?: "sm" | "md";
@@ -213,6 +274,7 @@ export function ClinicalAction({
           patient={patient}
           currentChip={currentChip}
           initialValues={initialValues}
+          walkInPatients={walkInPatients}
           close={() => setOpen(false)}
         />
       )}

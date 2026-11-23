@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { cache } from "react";
 import { APP_TIME_ZONE } from "@/app/shared/config/locale";
 import { todayInTimeZone } from "@/app/shared/utils/date";
+import { type DemoWalkIn, demoSchedule, isDemoWalkIn } from "./demo-schedule";
 import {
   type ClientRecord,
   type ClinicalChange,
@@ -17,6 +18,7 @@ import {
   normalizeMicrochip,
   registryOwnerId,
 } from "./registry";
+import { canCallVisit } from "./schedule";
 
 const COOKIE = "vv_clinical_demo";
 const PATIENTS: ClinicalPatient[] = [
@@ -110,6 +112,15 @@ const PATIENTS: ClinicalPatient[] = [
     owner: "Morgan Lee",
     ownerEmail: "morgan.lee@example.test",
   },
+  {
+    id: "toby",
+    name: "Toby",
+    breed: "Shih Tzu",
+    age: "5y",
+    species: "dog",
+    owner: "Maria Santos",
+    ownerId: "maria",
+  },
 ];
 
 interface DemoState {
@@ -118,6 +129,7 @@ interface DemoState {
   called: string[];
   chips: Record<string, string>;
   clients: ClientRecord[];
+  walkIns: DemoWalkIn[];
 }
 
 async function readState(): Promise<DemoState> {
@@ -190,6 +202,9 @@ async function readState(): Promise<DemoState> {
                 client.status === "inactive"),
           )
         : [],
+      walkIns: Array.isArray(value.walkIns)
+        ? value.walkIns.filter(isDemoWalkIn)
+        : [],
       chips: Object.fromEntries(
         Object.entries(value.chips ?? {}).filter(
           (entry): entry is [string, string] =>
@@ -198,7 +213,14 @@ async function readState(): Promise<DemoState> {
       ),
     };
   } catch {
-    return { patients: [], entries: [], called: [], chips: {}, clients: [] };
+    return {
+      patients: [],
+      entries: [],
+      called: [],
+      chips: {},
+      clients: [],
+      walkIns: [],
+    };
   }
 }
 
@@ -275,18 +297,22 @@ function overview(state: DemoState): PracticeOverview {
     };
   });
   const date = todayInTimeZone(APP_TIME_ZONE);
+  const walkIns = state.walkIns.filter((visit) => visit.date === date);
   return {
     date,
     clinicName: "VertiVet Central",
     room: "Exam Room 2",
     counts: {
-      booked: 6,
+      booked: 6 + walkIns.length,
       patients: patients.length,
       owners: groupRegistryOwners(patients, demoClients(state, date)).length,
       reports: 3,
     },
     patients,
-    queue: visits.map((visit) => ({
+    queue: [
+      ...visits,
+      ...walkIns.map((visit) => ({ ...visit, status: "checked_in" as const })),
+    ].map((visit) => ({
       ...visit,
       status: state.called.includes(visit.id) ? "called" : visit.status,
     })),
@@ -312,11 +338,20 @@ export const getDemoPractice = cache(async () => {
   await connection();
   const state = await readState();
   const practice = overview(state);
-  return { overview: practice, clients: demoClients(state, practice.date) };
+  return {
+    overview: practice,
+    clients: demoClients(state, practice.date),
+    walkIns: state.walkIns,
+  };
 });
 
 export async function getDemoOverview() {
   return (await getDemoPractice()).overview;
+}
+
+export async function getDemoSchedule(dates: string[]) {
+  const { overview: practice, walkIns } = await getDemoPractice();
+  return demoSchedule(practice, dates, walkIns);
 }
 
 export async function applyDemoChange(
@@ -388,10 +423,39 @@ export async function applyDemoChange(
       if (normalizeMicrochip(patient.chip ?? "") !== chip)
         state.chips[change.patientId] = chip;
     }
+  } else if (change.kind === "walk_in") {
+    const input = change.patient;
+    const patientId = "id" in input ? input.id : crypto.randomUUID();
+    if ("id" in input) {
+      if (!current.patients.some(({ id }) => id === patientId)) return false;
+      if (current.queue.some((visit) => visit.patientId === patientId))
+        return false;
+    } else {
+      state.patients.push({
+        id: patientId,
+        ownerId: crypto.randomUUID(),
+        name: input.name,
+        owner: input.owner,
+        breed: "",
+        chip: "",
+      });
+    }
+    const startsAt = new Intl.DateTimeFormat("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: APP_TIME_ZONE,
+      hourCycle: "h23",
+    }).format(new Date());
+    state.walkIns.push({
+      id: crypto.randomUUID(),
+      patientId,
+      date: current.date,
+      startsAt,
+      reason: change.reason,
+    });
   } else if (change.kind === "call") {
     const visit = current.queue.find(({ id }) => id === change.visitId);
-    if (!visit || (visit.status !== "waiting" && visit.status !== "checked_in"))
-      return false;
+    if (!visit || !canCallVisit(visit.status)) return false;
     state.called.push(visit.id);
   } else {
     if (!current.patients.some(({ id }) => id === change.patientId))
