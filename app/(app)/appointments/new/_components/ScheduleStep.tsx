@@ -9,8 +9,8 @@ import { CalendarIcon } from "@/app/shared/ui/icons";
 import { fromISODate, startOfDay, toISODate } from "@/app/shared/utils/date";
 import type { ServiceOffering, TimeSlot } from "../../../_lib/data/types";
 import { formatFullDay } from "../../../_lib/format";
+import { useSlots } from "../../_lib/useSlots";
 import { type BookingDraft, bookingWindow } from "../_lib/booking";
-import { useSlots } from "../_lib/useSlots";
 import { SlotsPanel } from "./SlotsPanel";
 import styles from "./schedule.module.css";
 

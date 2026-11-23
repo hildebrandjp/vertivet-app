@@ -6,8 +6,10 @@ import { ROUTES } from "@/app/shared/config/routes";
 import { apiRequest } from "@/app/shared/server/api-client";
 import { isDemoMode } from "@/app/shared/server/env";
 import { getSessionToken } from "@/app/shared/server/session";
+import { canChangeAppointment, isUpcoming } from "./appointment-policy";
+import { appointmentStart } from "./appointment-time";
+import { getDemoAppointments, saveDemoAppointment } from "./demo-appointments";
 import {
-  DEMO_APPOINTMENTS,
   DEMO_NAV_COUNTS,
   DEMO_NOTIFICATIONS,
   DEMO_SERVICES,
@@ -18,6 +20,7 @@ import { addDemoPet, getDemoPets } from "./demo-pets";
 import type {
   AppNotification,
   Appointment,
+  AppointmentChange,
   NavCounts,
   NewAppointment,
   NewPet,
@@ -85,11 +88,27 @@ export const getNotifications = cache(() =>
   load<AppNotification[]>("/notifications?limit=10", DEMO_NOTIFICATIONS),
 );
 
-export const getUpcomingAppointments = cache((limit: number) =>
-  load<Appointment[]>(
-    `/appointments?upcoming=true&limit=${limit}`,
-    DEMO_APPOINTMENTS.slice(0, limit),
-  ),
+async function loadAppointments(session: Session, query = "") {
+  if ("demo" in session) return getDemoAppointments();
+  return load<Appointment[]>(`/appointments${query}`, [], session);
+}
+
+export const getUpcomingAppointments = cache(async (limit: number) => {
+  const session = await verifySession();
+  const visits = await loadAppointments(
+    session,
+    `?upcoming=true&limit=${limit}`,
+  );
+  if (!("demo" in session)) return visits;
+  const now = Date.now();
+  return visits
+    .filter((visit) => isUpcoming(visit, now))
+    .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt))
+    .slice(0, limit);
+});
+
+export const getAppointments = cache(async () =>
+  loadAppointments(await verifySession()),
 );
 
 export interface UpcomingVisit extends Appointment {
@@ -132,12 +151,7 @@ export async function fetchAvailableSlots(
   serviceId: string,
   date: string,
 ): Promise<TimeSlot[]> {
-  const query = new URLSearchParams({ serviceId, date });
-  return load(
-    `/availability?${query}`,
-    demoSlots(serviceId, date),
-    await resolveSession(),
-  );
+  return loadAvailableSlots(serviceId, date, await resolveSession());
 }
 
 export type CreateAppointmentResult =
@@ -153,13 +167,31 @@ export async function createAppointment(
   input: NewAppointment,
 ): Promise<CreateAppointmentResult> {
   const session = await resolveSession();
-  if ("demo" in session)
-    return {
-      ok: true,
-      id: `demo_${Date.now()}`,
+  if ("demo" in session) {
+    const service = DEMO_SERVICES.find(({ id }) => id === input.serviceId);
+    if (!service) return { ok: false, reason: "rejected" };
+    const schedule = await findSchedule(
+      service.id,
+      input.date,
+      input.time,
+      session,
+    );
+    if (!schedule) return { ok: false, reason: "slot_taken" };
+    const id = crypto.randomUUID();
+    const saved = await saveDemoAppointment({
+      id,
+      petId: input.petId,
+      service: service.name,
+      serviceId: service.id,
+      description: service.description,
+      durationMinutes: service.durationMinutes,
       status: "confirmed",
-      emailSent: false,
-    };
+      ...schedule,
+    });
+    return saved
+      ? { ok: true, id, status: "confirmed", emailSent: false }
+      : { ok: false, reason: "unavailable" };
+  }
 
   const result = await apiRequest<{
     id?: string;
@@ -183,6 +215,99 @@ export async function createAppointment(
     ok: false,
     reason: result.failure === "rejected" ? "rejected" : "unavailable",
   };
+}
+
+async function loadAvailableSlots(
+  serviceId: string,
+  date: string,
+  session: Session,
+) {
+  const query = new URLSearchParams({ serviceId, date });
+  if (!("demo" in session))
+    return load<TimeSlot[]>(`/availability?${query}`, [], session);
+
+  const visits = await getDemoAppointments();
+  const now = Date.now();
+  return demoSlots(serviceId, date).map((slot) => {
+    const start = appointmentStart(date, slot.time);
+    const available =
+      slot.available &&
+      start !== null &&
+      +start > now &&
+      !visits.some(
+        (visit) =>
+          isUpcoming(visit, now) &&
+          Date.parse(visit.startsAt) === +start &&
+          visit.provider === slot.provider,
+      );
+    return { ...slot, available };
+  });
+}
+
+async function findSchedule(
+  serviceId: string,
+  date: string,
+  time: string,
+  session: Session,
+) {
+  const start = appointmentStart(date, time);
+  if (!start || +start <= Date.now()) return null;
+  const slots = await loadAvailableSlots(serviceId, date, session);
+  const slot = slots.find((item) => item.available && item.time === time);
+  if (!slot) return null;
+  return {
+    startsAt: start.toISOString(),
+    provider: slot.provider,
+    location: slot.location,
+  };
+}
+
+export async function changeAppointment(
+  id: string,
+  expectedStartsAt: string,
+  change: AppointmentChange,
+) {
+  const session = await resolveSession();
+  const visits = await loadAppointments(session);
+  const visit = visits.find((item) => item.id === id);
+  if (
+    !visit ||
+    visit.startsAt !== expectedStartsAt ||
+    !canChangeAppointment(visit, change.kind, Date.now())
+  )
+    return "changed";
+
+  const status = change.kind === "cancel" ? "cancelled" : "confirmed";
+  let schedule: Awaited<ReturnType<typeof findSchedule>> = null;
+  if (change.kind === "reschedule") {
+    if (!visit.serviceId) return "changed";
+    schedule = await findSchedule(
+      visit.serviceId,
+      change.date,
+      change.time,
+      session,
+    );
+    if (!schedule) return "slot_taken";
+  }
+
+  if ("demo" in session) {
+    const saved = await saveDemoAppointment({ ...visit, status, ...schedule });
+    return saved ? "saved" : "failed";
+  }
+  const body =
+    change.kind === "reschedule"
+      ? { date: change.date, time: change.time }
+      : { status };
+  const result = await apiRequest(`/appointments/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body,
+    token: session.token,
+  });
+  if (result.ok) return "saved";
+  if (result.failure === "unauthorized") redirect(ROUTES.login);
+  if (result.status === 409)
+    return change.kind === "reschedule" ? "slot_taken" : "changed";
+  return "failed";
 }
 
 export async function createPet(

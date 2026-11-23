@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { TimeSlot } from "../../../_lib/data/types";
-import { loadSlots } from "../actions";
+import type { TimeSlot } from "../../_lib/data/types";
+import { loadSlots } from "../availability";
 
 export type SlotsView =
   | { status: "idle" }

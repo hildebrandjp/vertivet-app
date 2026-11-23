@@ -50,6 +50,10 @@ const BREADCRUMBS: Record<string, BreadcrumbItem[]> = {
     { label: "My Pets", href: ROUTES.pets },
     { label: "Add New Pet" },
   ],
+  [ROUTES.appointments]: [
+    { label: "Dashboard", href: ROUTES.dashboard },
+    { label: "Appointments" },
+  ],
   [ROUTES.newAppointment]: [
     { label: "Appointments", href: ROUTES.appointments },
     { label: "Book an Appointment" },
