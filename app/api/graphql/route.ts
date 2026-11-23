@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { SESSION_SECONDS } from "@/server/practice/application/practice";
 import { runPracticeGraphQL } from "@/server/practice/graphql/schema";
 import { getPracticeService } from "@/server/practice/infrastructure/runtime";
+import { PRACTICE_GRAPHQL_PATH } from "@/shared/practice/contracts";
 
 const COOKIE = "vv_practice_session";
 
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
   });
   if (nextToken !== undefined) {
     response.cookies.set(COOKIE, nextToken ?? "", {
-      path: "/api/graphql",
+      path: PRACTICE_GRAPHQL_PATH,
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",

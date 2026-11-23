@@ -1,11 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Knex } from "knex";
-import type {
-  Appointment,
-  Member,
-  Patient,
-  PracticeStore,
-} from "../application/practice";
+import type { Appointment, Patient } from "../../../shared/practice/contracts";
+import type { PracticeStore } from "../application/practice";
 
 export function knexPracticeStore(db: Knex): PracticeStore {
   const memberships = () =>
@@ -25,11 +21,13 @@ export function knexPracticeStore(db: Knex): PracticeStore {
         .where("u.email", email)
         .select("u.password_hash as passwordHash")
         .first(),
-    async createSession(member: Member, hash, expires) {
+    async createSession(member, hash, expires, previousHash) {
       await db.transaction(async (trx) => {
         await trx("sessions")
           .where("expires_at", "<=", new Date().toISOString())
           .delete();
+        if (previousHash)
+          await trx("sessions").where("token_hash", previousHash).delete();
         await trx("sessions").insert({
           token_hash: hash,
           clinic_id: member.clinicId,
@@ -49,7 +47,7 @@ export function knexPracticeStore(db: Knex): PracticeStore {
     async revoke(hash) {
       await db("sessions").where("token_hash", hash).delete();
     },
-    patients: (clinicId): Promise<Patient[]> =>
+    patients: (clinicId, offset, limit): Promise<Patient[]> =>
       db("patients as p")
         .join("clients as c", function () {
           this.on("c.clinic_id", "p.clinic_id").andOn("c.id", "p.client_id");
@@ -57,8 +55,9 @@ export function knexPracticeStore(db: Knex): PracticeStore {
         .where("p.clinic_id", clinicId)
         .select("p.id", "p.name", "p.species", "c.name as owner")
         .orderBy(["p.name", "p.id"])
-        .limit(100),
-    appointments: (clinicId): Promise<Appointment[]> =>
+        .offset(offset)
+        .limit(limit),
+    appointments: (clinicId, offset, limit): Promise<Appointment[]> =>
       db("appointments as a")
         .join("patients as p", function () {
           this.on("p.clinic_id", "a.clinic_id").andOn("p.id", "a.patient_id");
@@ -71,8 +70,9 @@ export function knexPracticeStore(db: Knex): PracticeStore {
           "a.reason",
           "a.starts_at as startsAt",
         )
-        .orderBy("a.starts_at")
-        .limit(100),
+        .orderBy(["a.starts_at", "a.id"])
+        .offset(offset)
+        .limit(limit),
     addPatient: (clinicId, input) =>
       db.transaction(async (trx) => {
         await trx("clients")

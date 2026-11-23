@@ -8,18 +8,31 @@ import {
   visit,
 } from "graphql";
 import {
+  type BookAppointmentInput,
+  type RegisterPatientInput,
+  type SignInInput,
+  SPECIES,
+} from "../../../shared/practice/contracts";
+import {
   type Member,
   PracticeError,
   type practice,
-  type Species,
 } from "../application/practice";
 
 const schema = buildSchema(`
-  enum Species { dog cat rabbit bird other }
+  enum Species { ${SPECIES.join(" ")} }
   type Member { name: String!, clinic: String! }
   type Patient { id: ID!, name: String!, species: Species!, owner: String! }
   type Appointment { id: ID!, patient: String!, startsAt: String!, reason: String! }
-  type Query { me: Member, patients: [Patient!]!, appointments: [Appointment!]! }
+  type PatientPage { items: [Patient!]!, hasMore: Boolean! }
+  type AppointmentPage { items: [Appointment!]!, hasMore: Boolean! }
+  type Workspace { member: Member!, patients: PatientPage!, appointments: AppointmentPage! }
+  type Query {
+    me: Member
+    patients: [Patient!]!
+    appointments: [Appointment!]!
+    workspace(patientOffset: Int! = 0, appointmentOffset: Int! = 0): Workspace
+  }
   type Mutation {
     signIn(clinic: String!, email: String!, password: String!): Boolean!
     signOut: Boolean!
@@ -92,40 +105,31 @@ export async function runPracticeGraphQL(
     me: member,
     patients: async () => service.patients(await requireMember()),
     appointments: async () => service.appointments(await requireMember()),
-    signIn: async ({
-      clinic,
-      email,
-      password,
+    workspace: async ({
+      patientOffset,
+      appointmentOffset,
     }: {
-      clinic: string;
-      email: string;
-      password: string;
+      patientOffset: number;
+      appointmentOffset: number;
     }) => {
-      if (nextToken !== undefined)
-        throw new PracticeError("Submit one session change per request.");
-      nextToken = await service.signIn(clinic, email, password);
-      if (token) await service.signOut(token);
+      const current = await member();
+      return current
+        ? service.workspace(current, patientOffset, appointmentOffset)
+        : null;
+    },
+    signIn: async ({ clinic, email, password }: SignInInput) => {
+      nextToken = await service.signIn(clinic, email, password, token);
       return true;
     },
     signOut: async () => {
-      if (nextToken !== undefined)
-        throw new PracticeError("Submit one session change per request.");
       await service.signOut(token);
-      authenticated = Promise.resolve(undefined);
       nextToken = null;
       return true;
     },
-    registerPatient: async (input: {
-      name: string;
-      species: Species;
-      owner: string;
-      email: string;
-    }) => service.register(await requireMember(), input),
-    bookAppointment: async (input: {
-      patientId: string;
-      startsAt: string;
-      reason: string;
-    }) => service.book(await requireMember(), input),
+    registerPatient: async (input: RegisterPatientInput) =>
+      service.register(await requireMember(), input),
+    bookAppointment: async (input: BookAppointmentInput) =>
+      service.book(await requireMember(), input),
   };
   const response = await execute({
     schema,

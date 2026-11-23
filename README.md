@@ -62,4 +62,4 @@ SQLite files default to `.data/vertivet.sqlite3`. Set `VERTIVET_DB_PATH` to an a
 
 Run `npm run test:practice` to verify the GraphQL service and tenant constraints against an in-memory SQLite database.
 
-A session belongs to a clinic membership. Tenant-owned records use composite keys and foreign keys, and the service derives the clinic from the authenticated session. The workspace lists up to 100 patients and 100 upcoming appointments per clinic. SQLite deployment assumes a single writable database volume.
+A session belongs to a clinic membership. Tenant-owned records use composite keys and foreign keys, and the service derives the clinic from the authenticated session. The workspace loads 20 patients and 20 upcoming appointments per page. The appointment picker uses the current patient page. SQLite deployment assumes a single writable database volume.

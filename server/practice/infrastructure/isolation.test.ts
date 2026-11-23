@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { WORKSPACE_PAGE_SIZE } from "../../../shared/practice/contracts";
 import { hashPassword, practice } from "../application/practice";
 import { runPracticeGraphQL } from "../graphql/schema";
 import { migrate, openDatabase } from "./database";
@@ -85,13 +86,48 @@ test("SQLite and GraphQL isolate clinic data and revoke sessions", async () => {
       /FOREIGN KEY/,
     );
 
+    await db("patients").insert(
+      Array.from({ length: WORKSPACE_PAGE_SIZE }, (_, index) => ({
+        clinic_id: "a",
+        id: `extra-${index}`,
+        client_id: patient.client_id,
+        name: `Patient ${String(index).padStart(2, "0")}`,
+        species: "dog",
+      })),
+    );
+    const current = await service.member(alpha);
+    assert(current);
+    const first = await service.workspace(current, 0, 0);
+    const second = await service.workspace(current, WORKSPACE_PAGE_SIZE, 0);
+    assert.equal(first.patients.items.length, WORKSPACE_PAGE_SIZE);
+    assert.equal(first.patients.hasMore, true);
+    assert.deepEqual(
+      second.patients.items.map(({ name }) => name),
+      ["Patient 19"],
+    );
+    assert.equal(second.patients.hasMore, false);
+    const anonymous = await runPracticeGraphQL(service, {
+      query: "{ workspace { member { clinic } } }",
+    });
+    assert.deepEqual(JSON.parse(JSON.stringify(anonymous.result)), {
+      data: { workspace: null },
+    });
+
+    const replacement = await service.signIn(
+      "alpha",
+      "staff@example.test",
+      password,
+      alpha,
+    );
+    assert.equal(await service.member(alpha), undefined);
+    assert(await service.member(replacement));
     const logout = await runPracticeGraphQL(
       service,
       { query: "mutation { signOut }" },
-      alpha,
+      replacement,
     );
     assert.equal(logout.nextToken, null);
-    assert.equal(await service.member(alpha), undefined);
+    assert.equal(await service.member(replacement), undefined);
     assert(await service.member(beta));
   } finally {
     await db.destroy();
