@@ -9,6 +9,7 @@ import { isDemoMode } from "@/app/shared/server/env";
 import { deleteSession } from "@/app/shared/server/session";
 import { updatePractice } from "./_lib/data";
 import { clearClinicalDemo } from "./_lib/demo";
+import { clearDemoOrders } from "./_lib/demo-diagnostics";
 import { type ClinicalChange, isClinicalSpecies } from "./_lib/model";
 import { normalizeMicrochip } from "./_lib/registry";
 
@@ -162,7 +163,7 @@ export async function saveClinicalChange(
 }
 
 export async function logoutClinician() {
-  if (isDemoMode()) await clearClinicalDemo();
+  if (isDemoMode()) await Promise.all([clearClinicalDemo(), clearDemoOrders()]);
   await deleteSession();
   redirect(ROUTES.clinicalLogin);
 }

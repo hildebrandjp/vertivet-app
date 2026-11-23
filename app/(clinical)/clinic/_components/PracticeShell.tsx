@@ -145,6 +145,7 @@ export function PracticeShell({
 }) {
   const active = overview.queue.find(({ status }) => status === "in_exam");
   const isSchedule = view === "queue";
+  const isDiagnostics = view === "diagnostics";
   const activeName =
     active && overview.patients.find(({ id }) => id === active.patientId)?.name;
   const registryView = view === "patients" || view === "owners";
@@ -158,9 +159,12 @@ export function PracticeShell({
         ? "Pet Owners & Client Directory"
         : isSchedule
           ? "Queue Schedule & Daily Operations"
-          : registryView
-            ? "Patients & Pet Owners Management"
-            : (VIEWS.find(({ id }) => id === view)?.label ?? "Clinical Portal");
+          : isDiagnostics
+            ? "Prescriptions & Lab Diagnostics"
+            : registryView
+              ? "Patients & Pet Owners Management"
+              : (VIEWS.find(({ id }) => id === view)?.label ??
+                "Clinical Portal");
   const sidebar = (
     <PracticeSidebar
       clinician={clinician}
@@ -197,14 +201,18 @@ export function PracticeShell({
                   ? " · In Session"
                   : ""}
             </Badge>
-          ) : registryView ? (
+          ) : registryView || isDiagnostics ? (
             <ButtonLink
-              href="#registry-search"
+              href={isDiagnostics ? "#diagnostic-search" : "#registry-search"}
               size="sm"
               variant="secondary"
               className={styles.search}
               startIcon={<SearchIcon />}
-              aria-label="Go to registry search"
+              aria-label={
+                isDiagnostics
+                  ? "Go to diagnostic order search"
+                  : "Go to registry search"
+              }
             />
           ) : (
             <search
@@ -229,7 +237,7 @@ export function PracticeShell({
               </form>
             </search>
           )}
-          {!isSchedule && (
+          {!isSchedule && !isDiagnostics && (
             <ButtonLink
               href={`${ROUTES.clinicalDashboard}#clinical-alerts`}
               size="sm"
@@ -238,7 +246,7 @@ export function PracticeShell({
               aria-label="Clinical alerts"
             />
           )}
-          {registryView || isSchedule ? (
+          {registryView || isSchedule || isDiagnostics ? (
             <div className={styles.account}>
               <Avatar name={name} decorative />
               <Text variant="label" tone="heading">
