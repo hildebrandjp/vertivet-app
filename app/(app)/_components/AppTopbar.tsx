@@ -17,10 +17,14 @@ import { TopbarUser } from "./TopbarUser";
 export function AppTopbar({ className }: { className?: string }) {
   return (
     <header className={cx(styles.topbar, className)}>
-      <MobileNav>
-        <AppSidebar />
-      </MobileNav>
-      <PageBreadcrumb />
+      <Suspense>
+        <MobileNav>
+          <AppSidebar />
+        </MobileNav>
+      </Suspense>
+      <Suspense>
+        <PageBreadcrumb />
+      </Suspense>
       <div className={styles.actions}>
         <QuickSearch />
         <Suspense

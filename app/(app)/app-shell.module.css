@@ -70,3 +70,17 @@
     padding: var(--space-6) var(--space-7) var(--space-7);
   }
 }
+
+@media print {
+  .shell:has([data-print-records]) {
+    display: block;
+  }
+
+  .shell:has([data-print-records]) :is(.sidebarSlot, .topbar, .skipLink) {
+    display: none;
+  }
+
+  .main:has([data-print-records]) {
+    padding: 0;
+  }
+}

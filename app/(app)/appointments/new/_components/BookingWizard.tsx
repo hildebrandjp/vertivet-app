@@ -43,7 +43,11 @@ const REVIEW_PROGRESS = [
  */
 export function BookingWizard({ pets, services }: BookingWizardProps) {
   const searchParams = useSearchParams();
-  const [draft, setDraft] = useState<BookingDraft>(EMPTY_DRAFT);
+  const requestedPet = searchParams.get("petId");
+  const [draft, setDraft] = useState<BookingDraft>(() => ({
+    ...EMPTY_DRAFT,
+    petId: pets.find((pet) => pet.id === requestedPet)?.id ?? EMPTY_DRAFT.petId,
+  }));
   const [blocker, setBlocker] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   // Slots per "service|date", kept while the wizard is open.

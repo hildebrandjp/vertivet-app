@@ -8,7 +8,25 @@ export interface User {
   avatarUrl?: string | null;
 }
 
-export type Species = "dog" | "cat" | "rabbit" | "bird" | "other";
+export const PET_SPECIES = ["dog", "cat", "rabbit", "bird", "other"] as const;
+export type Species = (typeof PET_SPECIES)[number];
+
+export interface PreventiveCare {
+  id: string;
+  name: string;
+  kind: "vaccination" | "preventive";
+  status: "current" | "due" | "overdue" | "scheduled";
+  dueDate?: string;
+}
+
+export interface ClinicalRecord {
+  id: string;
+  title: string;
+  date: string;
+  clinician: string;
+  summary: string;
+  status: "normal" | "follow-up";
+}
 
 export interface Pet {
   id: string;
@@ -18,7 +36,14 @@ export interface Pet {
   /** ISO date (YYYY-MM-DD). */
   birthDate: string;
   photoUrl?: string | null;
+  weightKg?: number;
+  sex?: "female" | "male";
+  altered?: boolean;
+  preventiveCare?: PreventiveCare[];
+  clinicalRecords?: ClinicalRecord[];
 }
+
+export type NewPet = Pick<Pet, "name" | "species" | "breed" | "birthDate">;
 
 export type AppointmentStatus =
   | "confirmed"

@@ -18,6 +18,10 @@ export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
 
 /** Builders for parameterised URLs. */
 export const routeTo = {
+  bookPet: (petId: string) =>
+    `${ROUTES.newAppointment}?${new URLSearchParams({ petId })}`,
+  petRecords: (petId: string, recordId?: string) =>
+    `${ROUTES.medicalRecords}?${new URLSearchParams(recordId ? { petId, recordId } : { petId })}`,
   pet: (id: string) => `${ROUTES.pets}/${encodeURIComponent(id)}`,
   appointment: (id: string) =>
     `${ROUTES.appointments}/${encodeURIComponent(id)}`,

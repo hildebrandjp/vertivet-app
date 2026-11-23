@@ -10,16 +10,17 @@ import {
   DEMO_APPOINTMENTS,
   DEMO_NAV_COUNTS,
   DEMO_NOTIFICATIONS,
-  DEMO_PETS,
   DEMO_SERVICES,
   DEMO_USER,
   demoSlots,
 } from "./demo-data";
+import { addDemoPet, getDemoPets } from "./demo-pets";
 import type {
   AppNotification,
   Appointment,
   NavCounts,
   NewAppointment,
+  NewPet,
   Pet,
   ServiceOffering,
   TimeSlot,
@@ -66,11 +67,19 @@ async function load<T>(
 
 export const getCurrentUser = cache(() => load<User>("/me", DEMO_USER));
 
-export const getPets = cache(() => load<Pet[]>("/pets", DEMO_PETS));
+async function loadPets(session: Session): Promise<Pet[]> {
+  return "demo" in session ? getDemoPets() : load<Pet[]>("/pets", [], session);
+}
 
-export const getNavCounts = cache(() =>
-  load<NavCounts>("/me/counts", DEMO_NAV_COUNTS),
-);
+export const getPets = cache(async () => loadPets(await verifySession()));
+
+export const getNavCounts = cache(async (): Promise<NavCounts> => {
+  const session = await verifySession();
+  if ("demo" in session) {
+    return { ...DEMO_NAV_COUNTS, pets: (await getPets()).length };
+  }
+  return load<NavCounts>("/me/counts", DEMO_NAV_COUNTS, session);
+});
 
 export const getNotifications = cache(() =>
   load<AppNotification[]>("/notifications?limit=10", DEMO_NOTIFICATIONS),
@@ -116,7 +125,7 @@ export async function fetchServicesForAction(): Promise<ServiceOffering[]> {
 }
 
 export async function fetchPetsForAction(): Promise<Pet[]> {
-  return load("/pets", DEMO_PETS, await resolveSession());
+  return loadPets(await resolveSession());
 }
 
 export async function fetchAvailableSlots(
@@ -174,4 +183,20 @@ export async function createAppointment(
     ok: false,
     reason: result.failure === "rejected" ? "rejected" : "unavailable",
   };
+}
+
+export async function createPet(
+  input: NewPet,
+): Promise<"saved" | "limited" | "failed"> {
+  const session = await resolveSession();
+  if ("demo" in session) return (await addDemoPet(input)) ? "saved" : "limited";
+
+  const result = await apiRequest("/pets", {
+    method: "POST",
+    body: input,
+    token: session.token,
+  });
+  if (result.ok) return "saved";
+  if (result.failure === "unauthorized") redirect(ROUTES.login);
+  return "failed";
 }
