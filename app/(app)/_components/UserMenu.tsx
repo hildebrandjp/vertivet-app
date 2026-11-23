@@ -51,7 +51,7 @@ export function UserMenu({ name, avatarUrl }: UserMenuProps) {
           aria-label={`Account menu for ${name}`}
           aria-busy={signingOut || undefined}
         >
-          <Avatar name={name} src={avatarUrl} decorative />
+          <Avatar name={name} src={avatarUrl} unoptimized decorative />
           <span className={styles.name}>{name}</span>
         </button>
       )}
