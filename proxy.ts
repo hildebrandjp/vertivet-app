@@ -9,6 +9,16 @@ import { isDemoMode } from "./app/shared/server/env";
  * exists; the Data Access Layer (verifySession) does the real check.
  */
 export function proxy(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+  if (path === ROUTES.clinicalLogin) return NextResponse.next();
+  if (
+    path === ROUTES.clinicalDashboard ||
+    path.startsWith(`${ROUTES.clinicalDashboard}/`)
+  ) {
+    return request.cookies.has(SESSION_COOKIE)
+      ? NextResponse.next()
+      : NextResponse.redirect(new URL(ROUTES.clinicalLogin, request.url));
+  }
   if (isDemoMode() || request.cookies.has(SESSION_COOKIE)) {
     return NextResponse.next();
   }
@@ -18,6 +28,7 @@ export function proxy(request: NextRequest) {
 // Signed-in areas. Matchers must be literals; keep in sync with ROUTES.
 export const config = {
   matcher: [
+    "/clinic/:path*",
     "/dashboard/:path*",
     "/pets/:path*",
     "/appointments/:path*",
