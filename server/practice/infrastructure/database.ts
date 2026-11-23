@@ -2,6 +2,7 @@ import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import type Database from "better-sqlite3";
 import knex, { type Knex } from "knex";
+import * as listIndexes from "./list-indexes";
 import * as initialMigration from "./migration";
 
 export function openDatabase(
@@ -42,13 +43,17 @@ export function openDatabase(
   });
 }
 
+const migrations = {
+  "001-practice": initialMigration,
+  "002-list-indexes": listIndexes,
+};
+
+const migrationSource: Knex.MigrationSource<keyof typeof migrations> = {
+  getMigrations: async () => ["001-practice", "002-list-indexes"],
+  getMigrationName: (migration) => migration,
+  getMigration: async (migration) => migrations[migration],
+};
+
 export async function migrate(db: Knex) {
-  const name = "001-practice";
-  await db.migrate.latest({
-    migrationSource: {
-      getMigrations: async () => [name],
-      getMigrationName: (migration: string) => migration,
-      getMigration: async () => initialMigration,
-    },
-  });
+  await db.migrate.latest({ migrationSource });
 }

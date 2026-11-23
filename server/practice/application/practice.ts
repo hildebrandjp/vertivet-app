@@ -7,28 +7,23 @@ import {
 } from "node:crypto";
 import { promisify } from "node:util";
 
+import {
+  type Appointment,
+  type BookAppointmentInput,
+  LIMITS,
+  type MemberSummary,
+  type Patient,
+  type RegisterPatientInput,
+  SPECIES,
+  WORKSPACE_PAGE_SIZE,
+} from "../../../shared/practice/contracts";
+
 const deriveKey = promisify(scrypt);
-const SPECIES = ["dog", "cat", "rabbit", "bird", "other"] as const;
-export type Species = (typeof SPECIES)[number];
 export const SESSION_SECONDS = 8 * 60 * 60;
 
-export interface Member {
+export interface Member extends MemberSummary {
   clinicId: string;
-  clinic: string;
   userId: string;
-  name: string;
-}
-export interface Patient {
-  id: string;
-  name: string;
-  species: Species;
-  owner: string;
-}
-export interface Appointment {
-  id: string;
-  patient: string;
-  startsAt: string;
-  reason: string;
 }
 
 export interface PracticeStore {
@@ -36,24 +31,27 @@ export interface PracticeStore {
     clinic: string,
     email: string,
   ): Promise<(Member & { passwordHash: string }) | undefined>;
-  createSession(member: Member, hash: string, expires: string): Promise<void>;
+  createSession(
+    member: Member,
+    hash: string,
+    expires: string,
+    previousHash?: string,
+  ): Promise<void>;
   session(hash: string, now: string): Promise<Member | undefined>;
   revoke(hash: string): Promise<void>;
-  patients(clinicId: string): Promise<Patient[]>;
-  appointments(clinicId: string): Promise<Appointment[]>;
+  patients(clinicId: string, offset: number, limit: number): Promise<Patient[]>;
+  appointments(
+    clinicId: string,
+    offset: number,
+    limit: number,
+  ): Promise<Appointment[]>;
   addPatient(
     clinicId: string,
-    input: {
-      id: string;
-      name: string;
-      species: Species;
-      owner: string;
-      email: string;
-    },
+    input: RegisterPatientInput & { id: string },
   ): Promise<Patient>;
   addAppointment(
     clinicId: string,
-    input: { id: string; patientId: string; startsAt: string; reason: string },
+    input: BookAppointmentInput & { id: string },
   ): Promise<Appointment | undefined>;
 }
 
@@ -79,8 +77,17 @@ function required(value: string, max: number, label: string) {
 
 export function practice(store: PracticeStore) {
   return {
-    async signIn(clinic: string, email: string, password: string) {
-      if (clinic.length > 80 || email.length > 254 || password.length > 256)
+    async signIn(
+      clinic: string,
+      email: string,
+      password: string,
+      previousToken?: string,
+    ) {
+      if (
+        clinic.length > LIMITS.clinic ||
+        email.length > LIMITS.email ||
+        password.length > LIMITS.password
+      )
         throw new PracticeError("Invalid clinic or credentials.");
       const user = await store.credentials(
         clinic.trim().toLowerCase(),
@@ -102,6 +109,7 @@ export function practice(store: PracticeStore) {
         user,
         hashToken(token),
         new Date(Date.now() + SESSION_SECONDS * 1000).toISOString(),
+        previousToken && hashToken(previousToken),
       );
       return token;
     },
@@ -113,29 +121,55 @@ export function practice(store: PracticeStore) {
     async signOut(token: string | undefined) {
       if (token) await store.revoke(hashToken(token));
     },
-    patients: (member: Member) => store.patients(member.clinicId),
-    appointments: (member: Member) => store.appointments(member.clinicId),
-    register(
+    patients: (member: Member) => store.patients(member.clinicId, 0, 100),
+    appointments: (member: Member) =>
+      store.appointments(member.clinicId, 0, 100),
+    async workspace(
       member: Member,
-      input: { name: string; species: Species; owner: string; email: string },
+      patientOffset: number,
+      appointmentOffset: number,
     ) {
-      const email = normalizeEmail(required(input.email, 254, "owner email"));
+      if (
+        [patientOffset, appointmentOffset].some(
+          (offset) => !Number.isSafeInteger(offset) || offset < 0,
+        )
+      )
+        throw new PracticeError("Choose a valid results page.");
+      const limit = WORKSPACE_PAGE_SIZE + 1;
+      const [patients, appointments] = await Promise.all([
+        store.patients(member.clinicId, patientOffset, limit),
+        store.appointments(member.clinicId, appointmentOffset, limit),
+      ]);
+      const { name, clinic } = member;
+      return {
+        member: { name, clinic },
+        patients: {
+          items: patients.slice(0, WORKSPACE_PAGE_SIZE),
+          hasMore: patients.length === limit,
+        },
+        appointments: {
+          items: appointments.slice(0, WORKSPACE_PAGE_SIZE),
+          hasMore: appointments.length === limit,
+        },
+      };
+    },
+    register(member: Member, input: RegisterPatientInput) {
+      const email = normalizeEmail(
+        required(input.email, LIMITS.email, "owner email"),
+      );
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
         throw new PracticeError("Enter a valid owner email.");
       if (!SPECIES.includes(input.species))
         throw new PracticeError("Choose a species.");
       return store.addPatient(member.clinicId, {
         id: randomUUID(),
-        name: required(input.name, 100, "patient name"),
+        name: required(input.name, LIMITS.name, "patient name"),
         species: input.species,
-        owner: required(input.owner, 100, "owner name"),
+        owner: required(input.owner, LIMITS.name, "owner name"),
         email,
       });
     },
-    async book(
-      member: Member,
-      input: { patientId: string; startsAt: string; reason: string },
-    ) {
+    async book(member: Member, input: BookAppointmentInput) {
       const iso = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(
         input.startsAt,
       );
@@ -150,9 +184,9 @@ export function practice(store: PracticeStore) {
       }
       const saved = await store.addAppointment(member.clinicId, {
         id: randomUUID(),
-        patientId: required(input.patientId, 80, "patient"),
+        patientId: required(input.patientId, LIMITS.patientId, "patient"),
         startsAt: date.toISOString(),
-        reason: required(input.reason, 160, "visit reason"),
+        reason: required(input.reason, LIMITS.reason, "visit reason"),
       });
       if (!saved)
         throw new PracticeError(
