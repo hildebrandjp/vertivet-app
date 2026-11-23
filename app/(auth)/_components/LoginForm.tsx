@@ -8,23 +8,29 @@ import { Field } from "@/app/shared/ui/Field";
 import { PasswordInput } from "@/app/shared/ui/PasswordInput";
 import { TextInput } from "@/app/shared/ui/TextInput";
 import { TextLink } from "@/app/shared/ui/TextLink";
-import { AuthCard, AuthForm } from "../../_components/AuthCard";
 import {
   isRemembered,
   LOGIN_FIELDS,
   LOGIN_INITIAL_STATE,
+  type LoginState,
   REMEMBER_ME_DAYS,
   validateLogin,
-} from "../../_lib/login-form";
-import { login } from "../actions";
+} from "../_lib/login-form";
+import { AuthCard, AuthForm } from "./AuthCard";
 
 /**
  * The only client island on the login page: banner + sign-in card.
  * Works without JavaScript too (progressive enhancement via the form action).
  */
-export function LoginForm() {
+export function LoginForm({
+  action,
+  clinical = false,
+}: {
+  action: (state: LoginState, data: FormData) => Promise<LoginState>;
+  clinical?: boolean;
+}) {
   const form = useActionForm({
-    action: login,
+    action,
     initialState: LOGIN_INITIAL_STATE,
     fields: LOGIN_FIELDS,
     validate: validateLogin,
@@ -35,7 +41,11 @@ export function LoginForm() {
   return (
     <AuthCard
       title="Sign In"
-      description="Please provide your verified professional ID"
+      description={
+        clinical
+          ? "Use the email assigned by your clinic."
+          : "Please provide your verified professional ID"
+      }
       error={form.formError}
       onDismissError={form.dismissFormError}
     >
@@ -85,7 +95,7 @@ export function LoginForm() {
         />
 
         <Button type="submit" fullWidth loading={form.pending}>
-          Login to Dashboard
+          {clinical ? "Open Clinical Portal" : "Login to Dashboard"}
         </Button>
       </AuthForm>
     </AuthCard>

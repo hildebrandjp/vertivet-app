@@ -2,6 +2,8 @@
 export const ROUTES = {
   home: "/",
   login: "/login",
+  clinicalLogin: "/clinic/login",
+  clinicalDashboard: "/clinic",
   forgotPassword: "/forgot-password",
   requestAccount: "/request-account",
   dashboard: "/dashboard",
