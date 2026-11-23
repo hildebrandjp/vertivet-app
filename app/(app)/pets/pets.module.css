@@ -1,0 +1,162 @@
+.page,
+.profile,
+.records,
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.page {
+  gap: var(--space-4);
+}
+
+.summary,
+.profiles {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.summary {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+}
+
+.profiles {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 23rem), 1fr));
+}
+
+.stat,
+.profileHeader,
+.nameRow,
+.profileActions,
+.record,
+.recordActions,
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.stat {
+  padding: var(--space-3);
+}
+
+.icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-xl);
+}
+
+.icon[data-success] {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.profileHeader,
+.nameRow,
+.recordActions {
+  flex-wrap: wrap;
+}
+
+.profileIdentity,
+.recordText {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.nameRow {
+  gap: var(--space-2);
+}
+
+.careList,
+.recordList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.careList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.careList span {
+  white-space: normal;
+}
+
+.profileActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: auto;
+}
+
+.profileActions a {
+  text-align: center;
+}
+
+.profileActions a span {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.recordList {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.record {
+  padding: var(--space-3);
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.recordSummary {
+  margin-top: var(--space-2);
+}
+
+.formCard {
+  width: 100%;
+  max-width: 36rem;
+}
+
+.formActions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+  .record {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .recordActions {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 420px) {
+  .profileActions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .noPrint {
+    display: none;
+  }
+
+  .record {
+    break-inside: avoid;
+  }
+}

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import { AppSidebar } from "./_components/AppSidebar";
 import { AppTopbar } from "./_components/AppTopbar";
 import styles from "./app-shell.module.css";
@@ -14,7 +14,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         Skip to content
       </a>
       <div className={styles.sidebarSlot}>
-        <AppSidebar />
+        <Suspense>
+          <AppSidebar />
+        </Suspense>
       </div>
       <div className={styles.body}>
         <AppTopbar className={styles.topbar} />

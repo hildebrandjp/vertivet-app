@@ -28,6 +28,37 @@ export const DEMO_PETS: Pet[] = [
     species: "dog",
     breed: "Golden Retriever",
     birthDate: "2023-03-14",
+    weightKg: 28.4,
+    sex: "female",
+    altered: true,
+    preventiveCare: [
+      {
+        id: "rabies",
+        name: "Rabies",
+        kind: "vaccination",
+        status: "current",
+        dueDate: "2027-08-14",
+      },
+      { id: "dhpp", name: "DHPP", kind: "vaccination", status: "current" },
+      {
+        id: "dental",
+        name: "Dental",
+        kind: "preventive",
+        status: "scheduled",
+        dueDate: "2027-02-23",
+      },
+    ],
+    clinicalRecords: [
+      {
+        id: "blood-panel",
+        title: "Annual Blood Chemistry & Lipid Panel",
+        date: "2026-08-14",
+        clinician: "Dr. Sarah Jenkins",
+        summary:
+          "Normal vitals. Blood chemistry and lipid results were within the expected ranges.",
+        status: "normal",
+      },
+    ],
   },
   {
     id: "p_milo",
@@ -35,10 +66,48 @@ export const DEMO_PETS: Pet[] = [
     species: "cat",
     breed: "Domestic Shorthair",
     birthDate: "2024-06-02",
+    weightKg: 4.6,
+    sex: "male",
+    altered: true,
+    preventiveCare: [
+      {
+        id: "rabies",
+        name: "Rabies",
+        kind: "vaccination",
+        status: "current",
+        dueDate: "2027-07-02",
+      },
+      {
+        id: "fvrcp",
+        name: "FVRCP",
+        kind: "vaccination",
+        status: "due",
+        dueDate: "2026-12-09",
+      },
+      { id: "felv", name: "FeLV", kind: "vaccination", status: "current" },
+    ],
+    clinicalRecords: [
+      {
+        id: "dental-xray",
+        title: "Feline Dental X-Ray & Oral Assessment",
+        date: "2026-07-02",
+        clinician: "Dr. Emma Wilson",
+        summary:
+          "Grade 1 gingivitis noted. A follow-up oral assessment was advised.",
+        status: "follow-up",
+      },
+    ],
   },
 ];
 
 export const DEMO_APPOINTMENTS: Appointment[] = [
+  {
+    id: "a6",
+    petId: "p_luna",
+    service: "Annual wellness exam",
+    startsAt: "2026-12-07T10:00:00Z",
+    status: "confirmed",
+  },
   {
     id: "a1",
     petId: "p_luna",
