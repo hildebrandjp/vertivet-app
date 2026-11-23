@@ -1,6 +1,6 @@
 import {
   type BookAppointmentInput,
-  PRACTICE_GRAPHQL_PATH,
+  PRACTICE_GRAPHQL,
   type RegisterPatientInput,
   type SignInInput,
   type WorkspaceSnapshot,
@@ -11,9 +11,9 @@ async function request<T>(
   variables?: object,
   signal?: AbortSignal,
 ): Promise<T> {
-  const response = await fetch(PRACTICE_GRAPHQL_PATH, {
+  const response = await fetch(PRACTICE_GRAPHQL.path, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": PRACTICE_GRAPHQL.mediaType },
     body: JSON.stringify({ query, variables }),
     signal,
   });

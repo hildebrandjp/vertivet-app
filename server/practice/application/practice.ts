@@ -6,6 +6,8 @@ import {
   timingSafeEqual,
 } from "node:crypto";
 import { promisify } from "node:util";
+import { normalizeEmail } from "@/app/shared/forms/normalize";
+import { isEmail } from "@/app/shared/forms/validation";
 
 import {
   type Appointment,
@@ -19,7 +21,24 @@ import {
 } from "../../../shared/practice/contracts";
 
 const deriveKey = promisify(scrypt);
-export const SESSION_SECONDS = 8 * 60 * 60;
+const SECONDS_PER_HOUR = 60 * 60;
+const MILLISECONDS_PER_SECOND = 1000;
+const PASSWORD_SALT_BYTES = 16;
+const PASSWORD_KEY_BYTES = 64;
+const SESSION_TOKEN_BYTES = 32;
+const HEX_CHARACTERS_PER_BYTE = 2;
+const LEGACY_LIST_LIMIT = 100;
+const INVALID_CREDENTIALS = "Invalid clinic or credentials.";
+const ISO_UTC_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+const SESSION_TOKEN_PATTERN = new RegExp(
+  `^[a-f0-9]{${SESSION_TOKEN_BYTES * HEX_CHARACTERS_PER_BYTE}}$`,
+);
+const FALLBACK_PASSWORD_HASH = {
+  salt: Buffer.alloc(PASSWORD_SALT_BYTES).toString("hex"),
+  key: Buffer.alloc(PASSWORD_KEY_BYTES).toString("hex"),
+};
+
+export const SESSION_SECONDS = 8 * SECONDS_PER_HOUR;
 
 export interface Member extends MemberSummary {
   clinicId: string;
@@ -59,12 +78,10 @@ export class PracticeError extends Error {}
 
 const hashToken = (token: string) =>
   createHash("sha256").update(token).digest("hex");
-const normalizeEmail = (email: string) => email.trim().toLowerCase();
-const passwordSalt = "00000000000000000000000000000000";
 
 export async function hashPassword(password: string) {
-  const salt = randomBytes(16).toString("hex");
-  const key = (await deriveKey(password, salt, 64)) as Buffer;
+  const salt = randomBytes(PASSWORD_SALT_BYTES).toString("hex");
+  const key = (await deriveKey(password, salt, PASSWORD_KEY_BYTES)) as Buffer;
   return `${salt}:${key.toString("hex")}`;
 }
 
@@ -88,42 +105,51 @@ export function practice(store: PracticeStore) {
         email.length > LIMITS.email ||
         password.length > LIMITS.password
       )
-        throw new PracticeError("Invalid clinic or credentials.");
+        throw new PracticeError(INVALID_CREDENTIALS);
       const user = await store.credentials(
         clinic.trim().toLowerCase(),
         normalizeEmail(email),
       );
-      const [salt = passwordSalt, expected = "00".repeat(64)] =
-        user?.passwordHash.split(":") ?? [];
-      const key = (await deriveKey(password, salt, 64)) as Buffer;
+      const [
+        salt = FALLBACK_PASSWORD_HASH.salt,
+        expected = FALLBACK_PASSWORD_HASH.key,
+      ] = user?.passwordHash.split(":") ?? [];
+      const key = (await deriveKey(
+        password,
+        salt,
+        PASSWORD_KEY_BYTES,
+      )) as Buffer;
       const expectedKey = Buffer.from(expected, "hex");
       if (
         !user ||
         expectedKey.length !== key.length ||
         !timingSafeEqual(key, expectedKey)
       ) {
-        throw new PracticeError("Invalid clinic or credentials.");
+        throw new PracticeError(INVALID_CREDENTIALS);
       }
-      const token = randomBytes(32).toString("hex");
+      const token = randomBytes(SESSION_TOKEN_BYTES).toString("hex");
       await store.createSession(
         user,
         hashToken(token),
-        new Date(Date.now() + SESSION_SECONDS * 1000).toISOString(),
+        new Date(
+          Date.now() + SESSION_SECONDS * MILLISECONDS_PER_SECOND,
+        ).toISOString(),
         previousToken && hashToken(previousToken),
       );
       return token;
     },
     member(token: string | undefined) {
-      return token && /^[a-f0-9]{64}$/.test(token)
+      return token && SESSION_TOKEN_PATTERN.test(token)
         ? store.session(hashToken(token), new Date().toISOString())
         : undefined;
     },
     async signOut(token: string | undefined) {
       if (token) await store.revoke(hashToken(token));
     },
-    patients: (member: Member) => store.patients(member.clinicId, 0, 100),
+    patients: (member: Member) =>
+      store.patients(member.clinicId, 0, LEGACY_LIST_LIMIT),
     appointments: (member: Member) =>
-      store.appointments(member.clinicId, 0, 100),
+      store.appointments(member.clinicId, 0, LEGACY_LIST_LIMIT),
     async workspace(
       member: Member,
       patientOffset: number,
@@ -157,7 +183,7 @@ export function practice(store: PracticeStore) {
       const email = normalizeEmail(
         required(input.email, LIMITS.email, "owner email"),
       );
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      if (!isEmail(email))
         throw new PracticeError("Enter a valid owner email.");
       if (!SPECIES.includes(input.species))
         throw new PracticeError("Choose a species.");
@@ -170,12 +196,9 @@ export function practice(store: PracticeStore) {
       });
     },
     async book(member: Member, input: BookAppointmentInput) {
-      const iso = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(
-        input.startsAt,
-      );
       const date = new Date(input.startsAt);
       if (
-        !iso ||
+        !ISO_UTC_TIMESTAMP.test(input.startsAt) ||
         !Number.isFinite(+date) ||
         date.toISOString() !== input.startsAt ||
         +date <= Date.now()

@@ -10,8 +10,17 @@ export const LIMITS = {
   reason: 160,
 } as const;
 
+export const MEMBERSHIP_ROLE = {
+  administrator: "administrator",
+  veterinarian: "veterinarian",
+  staff: "staff",
+} as const;
+
 export const WORKSPACE_PAGE_SIZE = 20;
-export const PRACTICE_GRAPHQL_PATH = "/api/graphql";
+export const PRACTICE_GRAPHQL = {
+  path: "/api/graphql",
+  mediaType: "application/json",
+} as const;
 
 export type SignInInput = { clinic: string; email: string; password: string };
 export type RegisterPatientInput = {

@@ -5,14 +5,18 @@ import knex, { type Knex } from "knex";
 import * as listIndexes from "./list-indexes";
 import * as initialMigration from "./migration";
 
+export const IN_MEMORY_DATABASE = ":memory:";
+const DEFAULT_DATABASE_PATH = ".data/vertivet.sqlite3";
+const SQLITE_BUSY_TIMEOUT_MS = 5000;
+
 export function openDatabase(
-  filename = process.env.VERTIVET_DB_PATH || ".data/vertivet.sqlite3",
+  filename = process.env.VERTIVET_DB_PATH || DEFAULT_DATABASE_PATH,
 ): Knex {
   const location =
-    filename === ":memory:"
+    filename === IN_MEMORY_DATABASE
       ? filename
       : resolve(/* turbopackIgnore: true */ filename);
-  if (location !== ":memory:")
+  if (location !== IN_MEMORY_DATABASE)
     mkdirSync(dirname(location), { recursive: true });
   return knex({
     client: "better-sqlite3",
@@ -27,8 +31,9 @@ export function openDatabase(
       ) {
         try {
           connection.pragma("foreign_keys = ON");
-          connection.pragma("busy_timeout = 5000");
-          if (location !== ":memory:") connection.pragma("journal_mode = WAL");
+          connection.pragma(`busy_timeout = ${SQLITE_BUSY_TIMEOUT_MS}`);
+          if (location !== IN_MEMORY_DATABASE)
+            connection.pragma("journal_mode = WAL");
           done(null, connection);
         } catch (error) {
           done(
@@ -49,7 +54,8 @@ const migrations = {
 };
 
 const migrationSource: Knex.MigrationSource<keyof typeof migrations> = {
-  getMigrations: async () => ["001-practice", "002-list-indexes"],
+  getMigrations: async () =>
+    Object.keys(migrations) as (keyof typeof migrations)[],
   getMigrationName: (migration) => migration,
   getMigration: async (migration) => migrations[migration],
 };
