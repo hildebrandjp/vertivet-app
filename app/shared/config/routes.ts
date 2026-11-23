@@ -1,6 +1,7 @@
 /** Every app URL lives here so links and redirects never drift apart. */
 export const ROUTES = {
   home: "/",
+  practice: "/practice",
   login: "/login",
   clinicalLogin: "/clinic/login",
   clinicalDashboard: "/clinic",

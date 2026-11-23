@@ -8,18 +8,26 @@
     "start": "next start",
     "lint": "biome check",
     "bundev": "bun --bun run dev",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "db:migrate": "tsx scripts/practice-db.ts migrate",
+    "db:seed": "tsx scripts/practice-db.ts seed",
+    "test:practice": "tsx --test server/practice/infrastructure/isolation.test.ts"
   },
   "dependencies": {
+    "better-sqlite3": "^13.2.0",
+    "graphql": "^17.1.0",
+    "knex": "^3.3.0",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.2",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   },
   "packageManager": "bun@1.4.5",
@@ -29,6 +37,7 @@
   ],
   "trustedDependencies": [
     "sharp",
-    "unrs-resolver"
+    "unrs-resolver",
+    "better-sqlite3"
   ]
 }
