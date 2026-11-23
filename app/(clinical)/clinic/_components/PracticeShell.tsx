@@ -144,10 +144,16 @@ export function PracticeShell({
   children: ReactNode;
 }) {
   const active = overview.queue.some(({ status }) => status === "in_exam");
+  const registryView = view === "patients" || view === "owners";
+  const name =
+    [clinician.firstName, clinician.lastName].filter(Boolean).join(" ") ||
+    "Clinic team member";
   const title =
     view === "overview"
       ? "Doctor’s Practice Overview"
-      : (VIEWS.find(({ id }) => id === view)?.label ?? "Clinical Portal");
+      : registryView
+        ? "Patients & Pet Owners Management"
+        : (VIEWS.find(({ id }) => id === view)?.label ?? "Clinical Portal");
   const sidebar = (
     <PracticeSidebar
       clinician={clinician}
@@ -170,27 +176,38 @@ export function PracticeShell({
               { label: title },
             ]}
           />
-          <search
-            aria-label="Clinical patient lookup"
-            className={styles.search}
-          >
-            <form action={ROUTES.clinicalDashboard} className={styles.inline}>
-              <input type="hidden" name="view" value="patients" />
-              <InputGroup size="sm" startAddon={<SearchIcon />}>
-                <TextInput
-                  name="q"
-                  type="search"
-                  maxLength={100}
-                  defaultValue={query}
-                  placeholder="Search patient, chip #, or owner…"
-                  aria-label="Search patient, chip number, or owner"
-                />
-              </InputGroup>
-              <Button type="submit" size="sm" variant="secondary">
-                Search
-              </Button>
-            </form>
-          </search>
+          {registryView ? (
+            <ButtonLink
+              href="#registry-search"
+              size="sm"
+              variant="secondary"
+              className={styles.search}
+              startIcon={<SearchIcon />}
+              aria-label="Go to registry search"
+            />
+          ) : (
+            <search
+              aria-label="Clinical patient lookup"
+              className={styles.search}
+            >
+              <form action={ROUTES.clinicalDashboard} className={styles.inline}>
+                <input type="hidden" name="view" value="patients" />
+                <InputGroup size="sm" startAddon={<SearchIcon />}>
+                  <TextInput
+                    name="q"
+                    type="search"
+                    maxLength={100}
+                    defaultValue={query}
+                    placeholder="Search patient, chip #, or owner…"
+                    aria-label="Search patient, chip number, or owner"
+                  />
+                </InputGroup>
+                <Button type="submit" size="sm" variant="secondary">
+                  Search
+                </Button>
+              </form>
+            </search>
+          )}
           <ButtonLink
             href={`${ROUTES.clinicalDashboard}#clinical-alerts`}
             size="sm"
@@ -198,10 +215,19 @@ export function PracticeShell({
             startIcon={<BellIcon />}
             aria-label="Clinical alerts"
           />
-          <Badge variant="soft" shape="pill" dot>
-            {overview.room}
-            {active ? " (In Session)" : ""}
-          </Badge>
+          {registryView ? (
+            <div className={styles.account}>
+              <Avatar name={name} decorative />
+              <Text variant="label" tone="heading">
+                {name}
+              </Text>
+            </div>
+          ) : (
+            <Badge variant="soft" shape="pill" dot>
+              {overview.room}
+              {active ? " (In Session)" : ""}
+            </Badge>
+          )}
         </header>
         <main
           id="clinical-main"

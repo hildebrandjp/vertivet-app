@@ -4,11 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ROUTES } from "@/app/shared/config/routes";
 import { readString } from "@/app/shared/forms/form-state";
+import { isEmail, isPhone } from "@/app/shared/forms/validation";
 import { isDemoMode } from "@/app/shared/server/env";
 import { deleteSession } from "@/app/shared/server/session";
 import { updatePractice } from "./_lib/data";
 import { clearClinicalDemo } from "./_lib/demo";
-import type { ClinicalChange } from "./_lib/model";
+import { type ClinicalChange, isClinicalSpecies } from "./_lib/model";
+import { normalizeMicrochip } from "./_lib/registry";
 
 export type ClinicalResult =
   | { status: "idle" | "saved" }
@@ -27,7 +29,10 @@ export async function saveClinicalChange(
       const name = value("name");
       const owner = value("owner");
       const breed = value("breed");
-      const chip = value("chip");
+      const chip = normalizeMicrochip(value("chip"));
+      const species = value("species");
+      const ownerEmail = value("ownerEmail");
+      const ownerPhone = value("ownerPhone");
       if (
         !name ||
         !owner ||
@@ -40,7 +45,38 @@ export async function saveClinicalChange(
             "Enter a patient and owner name, and a valid microchip number if available.",
         };
       }
-      change = { kind, name, owner, breed, chip };
+      if (
+        (species && !isClinicalSpecies(species)) ||
+        (ownerEmail && (ownerEmail.length > 254 || !isEmail(ownerEmail))) ||
+        (ownerPhone && (ownerPhone.length > 40 || !isPhone(ownerPhone)))
+      ) {
+        return {
+          status: "error",
+          message:
+            "Choose a valid species and check the owner’s email address and phone number.",
+        };
+      }
+      change = {
+        kind,
+        name,
+        owner,
+        breed,
+        chip,
+        ...(isClinicalSpecies(species) && { species }),
+        ...(ownerEmail && { ownerEmail }),
+        ...(ownerPhone && { ownerPhone }),
+      };
+      break;
+    }
+    case "microchip": {
+      const chip = normalizeMicrochip(value("chip"));
+      if (!id || !/^\d{9,15}$/.test(chip)) {
+        return {
+          status: "error",
+          message: "Enter a microchip number with 9 to 15 digits.",
+        };
+      }
+      change = { kind, patientId: id, chip };
       break;
     }
     case "call":

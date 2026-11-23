@@ -4,6 +4,7 @@ export const ROUTES = {
   login: "/login",
   clinicalLogin: "/clinic/login",
   clinicalDashboard: "/clinic",
+  clinicalRegistryExport: "/clinic/registry/export",
   forgotPassword: "/forgot-password",
   requestAccount: "/request-account",
   dashboard: "/dashboard",
