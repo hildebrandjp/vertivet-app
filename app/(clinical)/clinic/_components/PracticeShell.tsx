@@ -145,6 +145,7 @@ export function PracticeShell({
 }) {
   const active = overview.queue.find(({ status }) => status === "in_exam");
   const isSchedule = view === "queue";
+  const isSettings = view === "settings";
   const isDiagnostics = view === "diagnostics";
   const activeName =
     active && overview.patients.find(({ id }) => id === active.patientId)?.name;
@@ -161,10 +162,12 @@ export function PracticeShell({
           ? "Queue Schedule & Daily Operations"
           : isDiagnostics
             ? "Prescriptions & Lab Diagnostics"
-            : registryView
-              ? "Patients & Pet Owners Management"
-              : (VIEWS.find(({ id }) => id === view)?.label ??
-                "Clinical Portal");
+            : isSettings
+              ? "Clinical Practice & Operations Settings"
+              : registryView
+                ? "Patients & Pet Owners Management"
+                : (VIEWS.find(({ id }) => id === view)?.label ??
+                  "Clinical Portal");
   const sidebar = (
     <PracticeSidebar
       clinician={clinician}
@@ -187,7 +190,7 @@ export function PracticeShell({
               { label: title },
             ]}
           />
-          {isSchedule ? (
+          {isSettings ? null : isSchedule ? (
             <Badge
               variant="soft"
               shape="pill"
@@ -237,7 +240,7 @@ export function PracticeShell({
               </form>
             </search>
           )}
-          {!isSchedule && !isDiagnostics && (
+          {!isSchedule && !isDiagnostics && !isSettings && (
             <ButtonLink
               href={`${ROUTES.clinicalDashboard}#clinical-alerts`}
               size="sm"
@@ -246,8 +249,13 @@ export function PracticeShell({
               aria-label="Clinical alerts"
             />
           )}
-          {registryView || isSchedule || isDiagnostics ? (
-            <div className={styles.account}>
+          {registryView || isSchedule || isDiagnostics || isSettings ? (
+            <div
+              className={cx(
+                styles.account,
+                isSettings && styles.scheduleStatus,
+              )}
+            >
               <Avatar name={name} decorative />
               <Text variant="label" tone="heading">
                 {name}

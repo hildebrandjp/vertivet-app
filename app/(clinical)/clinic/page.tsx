@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { formatFullDay } from "@/app/(app)/_lib/format";
 import { Alert } from "@/app/shared/ui/Alert";
-import { Card } from "@/app/shared/ui/Card";
-import { DescriptionList } from "@/app/shared/ui/DescriptionList";
 import { SectionHeader } from "@/app/shared/ui/SectionHeader";
 import { Skeleton } from "@/app/shared/ui/Skeleton";
 import { ClientDirectory } from "./_components/ClientDirectory";
 import { ClinicalAction } from "./_components/ClinicalAction";
+import { ClinicalSettings } from "./_components/ClinicalSettings";
 import { Diagnostics } from "./_components/Diagnostics";
 import {
   AlertsPanel,
@@ -26,6 +25,7 @@ import { readRegistryQuery } from "./_lib/registry";
 import { getRegistry } from "./_lib/registry-data";
 import { readScheduleQuery } from "./_lib/schedule";
 import { getSchedule } from "./_lib/schedule-data";
+import { getClinicalSettings } from "./_lib/settings-data";
 import styles from "./clinic.module.css";
 
 export const metadata: Metadata = {
@@ -40,11 +40,13 @@ async function Practice({
   const inRegistry = view === "patients" || view === "owners";
   const filters = readRegistryQuery(params);
   const orderFilters = readOrderQuery(params);
-  const [{ clinician, overview, demo }, registry, orders] = await Promise.all([
-    getPractice(),
-    inRegistry ? getRegistry(filters) : null,
-    view === "diagnostics" ? getOrders(orderFilters) : null,
-  ]);
+  const [{ clinician, overview, demo }, registry, orders, practiceSettings] =
+    await Promise.all([
+      getPractice(),
+      inRegistry ? getRegistry(filters) : null,
+      view === "diagnostics" ? getOrders(orderFilters) : null,
+      view === "settings" ? getClinicalSettings() : null,
+    ]);
   const scheduleQuery = readScheduleQuery(params, overview.date);
   const schedule = view === "queue" ? await getSchedule(scheduleQuery) : null;
   const inExam = overview.queue.filter(({ status }) => status === "in_exam");
@@ -71,7 +73,7 @@ async function Practice({
           Demo workspace with sample records. Use fictional patient information.
         </Alert>
       )}
-      {!inRegistry && !schedule && !orders && (
+      {!inRegistry && !schedule && !orders && !practiceSettings && (
         <SectionHeader
           as="h1"
           title={titles[view]}
@@ -136,15 +138,14 @@ async function Practice({
           canManage={clinician.role === "veterinarian"}
         />
       )}
-      {view === "settings" && (
-        <Card padding="lg">
-          <DescriptionList
-            items={[
-              { term: "Clinic", details: overview.clinicName },
-              { term: "Exam room", details: overview.room },
-            ]}
-          />
-        </Card>
+      {practiceSettings && (
+        <ClinicalSettings
+          initial={practiceSettings.settings}
+          name={[clinician.firstName, clinician.lastName]
+            .filter(Boolean)
+            .join(" ")}
+          canManage={practiceSettings.canManage}
+        />
       )}
     </PracticeShell>
   );
